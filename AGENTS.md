@@ -43,6 +43,14 @@ bash compile-check.sh
 
 This runs a Unity batch-mode compile and reports errors. Zero errors required before submitting.
 
+**Important:** Unity must be fully closed before running `compile-check.sh` — batch mode cannot launch while the Editor is open. Kill it first:
+
+```bash
+taskkill //F //IM Unity.exe 2>/dev/null; bash compile-check.sh
+```
+
+**Important:** Never run **Othello → Build All Scenes** while Unity is in Play mode — `EditorSceneManager.NewScene()` throws `InvalidOperationException` during play. Stop Play mode first (the menu item now guards against this).
+
 ## Coding Conventions
 
 ### General Rules

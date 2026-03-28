@@ -1,7 +1,7 @@
 #!/bin/bash
 
 UNITY="C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Unity.exe"
-PROJECT="$(cd "$(dirname "$0")" && pwd)"
+PROJECT="$(cd "$(dirname "$0")" && pwd -W)"
 LOG="/tmp/unity-build.log"
 
 case "$1" in
@@ -18,6 +18,6 @@ case "$1" in
     ;;
   *)
     echo "Opening Unity Editor..."
-    "$UNITY" -projectPath "$PROJECT" &
+    cmd.exe /c start "" "$UNITY" -projectPath "$PROJECT"
     ;;
 esac

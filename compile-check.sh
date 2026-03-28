@@ -6,7 +6,7 @@ LOG_FILE="e:/tmp/unity-build.log"
 
 echo "Compiling Unity project..."
 "C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Unity.exe" \
-  -projectPath "e:/workspace/unity-fps-sample" \
+  -projectPath "e:/workspace/unity-othello" \
   -batchmode -quit -logFile "$LOG_FILE" 2>&1
 
 EXIT_CODE=$?
