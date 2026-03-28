@@ -13,6 +13,7 @@ public class CellView : MonoBehaviour
 
     static Sprite _whiteSquareSprite;
     static Sprite _circleSprite;
+    static Sprite _ringSprite;
 
     public void Init(int row, int col)
     {
@@ -21,10 +22,12 @@ public class CellView : MonoBehaviour
 
         EnsureSharedSprites();
 
-        // Background
+        // Checkerboard background — two subtle shades of green
         _bgRenderer = gameObject.AddComponent<SpriteRenderer>();
         _bgRenderer.sprite = _whiteSquareSprite;
-        _bgRenderer.color = new Color(0.18f, 0.55f, 0.2f); // dark green
+        _bgRenderer.color = (row + col) % 2 == 0
+            ? new Color(0.14f, 0.50f, 0.18f)
+            : new Color(0.12f, 0.44f, 0.16f);
         _bgRenderer.sortingOrder = 0;
 
         // Collider for touch — must be 3D; OnMouseDown uses Physics.Raycast, not Physics2D
@@ -39,15 +42,26 @@ public class CellView : MonoBehaviour
         pieceSR.sprite = _circleSprite;
         pieceSR.sortingOrder = 1;
         _pieceView = _pieceGO.AddComponent<PieceView>();
+
+        // Inner highlight — simulates top-left light source for a 3-D disc look
+        var hlGO = new GameObject("Highlight");
+        hlGO.transform.SetParent(_pieceGO.transform, false);
+        hlGO.transform.localPosition = new Vector3(-0.15f, 0.15f, 0f);
+        hlGO.transform.localScale = Vector3.one * 0.38f;
+        var hlSR = hlGO.AddComponent<SpriteRenderer>();
+        hlSR.sprite = _circleSprite;
+        hlSR.color = new Color(1f, 1f, 1f, 0.22f);
+        hlSR.sortingOrder = 2;
+
         _pieceGO.SetActive(false);
 
-        // Valid-move dot child
+        // Valid-move ring indicator
         _validDotGO = new GameObject("ValidDot");
         _validDotGO.transform.SetParent(transform, false);
-        _validDotGO.transform.localScale = Vector3.one * 0.3f;
+        _validDotGO.transform.localScale = Vector3.one * 0.42f;
         var dotSR = _validDotGO.AddComponent<SpriteRenderer>();
-        dotSR.sprite = _circleSprite;
-        dotSR.color = new Color(0f, 0f, 0f, 0.4f);
+        dotSR.sprite = _ringSprite;
+        dotSR.color = new Color(0f, 0f, 0f, 0.55f);
         dotSR.sortingOrder = 1;
         _validDotGO.SetActive(false);
     }
@@ -64,6 +78,9 @@ public class CellView : MonoBehaviour
 
         if (_circleSprite == null)
             _circleSprite = CreateCircleSprite(64);
+
+        if (_ringSprite == null)
+            _ringSprite = CreateRingSprite(64);
     }
 
     static Sprite CreateCircleSprite(int size)
@@ -114,6 +131,31 @@ public class CellView : MonoBehaviour
     public void SetValidDot(bool show)
     {
         _validDotGO.SetActive(show);
+    }
+
+    static Sprite CreateRingSprite(int size)
+    {
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        float cx = size / 2f - 0.5f;
+        float cy = size / 2f - 0.5f;
+        float outerR = size / 2f - 2f;
+        float innerR = outerR * 0.55f;
+        const float aa = 1.5f;
+
+        for (int x = 0; x < size; x++)
+        {
+            for (int y = 0; y < size; y++)
+            {
+                float dx = x - cx;
+                float dy = y - cy;
+                float dist = Mathf.Sqrt(dx * dx + dy * dy);
+                float outer = Mathf.Clamp01((outerR - dist + aa) / aa);
+                float inner = Mathf.Clamp01((dist - innerR + aa) / aa);
+                tex.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Min(outer, inner)));
+            }
+        }
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
     }
 
     void OnMouseDown()

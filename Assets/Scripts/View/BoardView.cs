@@ -31,6 +31,8 @@ public class BoardView : MonoBehaviour
     {
         _cells = new CellView[8, 8];
 
+        CreateBoardFrame();
+
         for (int r = 0; r < 8; r++)
         {
             for (int c = 0; c < 8; c++)
@@ -60,6 +62,24 @@ public class BoardView : MonoBehaviour
         _cells[4, 4].ShowPiece(2, true);
     }
 
+    void CreateBoardFrame()
+    {
+        var frameGO = new GameObject("BoardFrame");
+        frameGO.transform.SetParent(transform, false);
+
+        var tex = new Texture2D(1, 1);
+        tex.SetPixel(0, 0, Color.white);
+        tex.Apply();
+        var sprite = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+
+        var sr = frameGO.AddComponent<SpriteRenderer>();
+        sr.sprite = sprite;
+        sr.color = new Color(0.04f, 0.16f, 0.06f);
+        sr.sortingOrder = -1;
+        // Board spans 8 world units; frame adds 0.4 padding on each side
+        frameGO.transform.localScale = new Vector3(8.8f, 8.8f, 1f);
+    }
+
     void DrawGridLines()
     {
         // Thin dark lines between cells for visual clarity
@@ -84,11 +104,11 @@ public class BoardView : MonoBehaviour
         lr.positionCount = 2;
         lr.SetPosition(0, start);
         lr.SetPosition(1, end);
-        lr.startWidth = 0.03f;
-        lr.endWidth = 0.03f;
+        lr.startWidth = 0.025f;
+        lr.endWidth = 0.025f;
         lr.material = new Material(Shader.Find("Sprites/Default"));
-        lr.startColor = new Color(0f, 0.25f, 0.05f, 1f);
-        lr.endColor = new Color(0f, 0.25f, 0.05f, 1f);
+        lr.startColor = new Color(0.04f, 0.22f, 0.07f, 1f);
+        lr.endColor = new Color(0.04f, 0.22f, 0.07f, 1f);
         lr.sortingOrder = 2;
     }
 

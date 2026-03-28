@@ -130,13 +130,13 @@ public class OthelloUIManager : MonoBehaviour
         rt.offsetMax = Vector2.zero;
 
         var bg = bar.AddComponent<Image>();
-        bg.color = new Color(0.08f, 0.08f, 0.08f, 0.95f);
+        bg.color = new Color(0.05f, 0.05f, 0.05f, 0.97f);
         bg.raycastTarget = false;
 
         // ── HOME button (left 20%) — orange, very visible, hidden until in-game
         _homeBtnGO = MakeButton(bar, "title_btn",
             new Vector2(0.005f, 0.08f), new Vector2(0.195f, 0.92f),
-            new Color(0.85f, 0.35f, 0.1f), OnTitleButtonClicked);
+            new Color(0.72f, 0.50f, 0.08f), OnTitleButtonClicked);
         _homeBtnGO.GetComponentInChildren<Text>().fontSize = 30;
         _localizedTexts.Add((_homeBtnGO.GetComponentInChildren<Text>(), () => Loc.Get("title_btn")));
         _homeBtnGO.SetActive(false);
@@ -175,7 +175,7 @@ public class OthelloUIManager : MonoBehaviour
         // ── Language toggle (right 20%) — always visible
         var langBtn = MakeButton(bar, "lang_btn",
             new Vector2(0.805f, 0.08f), new Vector2(0.995f, 0.92f),
-            new Color(0.15f, 0.3f, 0.55f), OnLangToggleClicked);
+            new Color(0.12f, 0.26f, 0.52f), OnLangToggleClicked);
         langBtn.GetComponentInChildren<Text>().fontSize = 30;
         _localizedTexts.Add((langBtn.GetComponentInChildren<Text>(), () => Loc.Get("lang_btn")));
     }
@@ -199,7 +199,7 @@ public class OthelloUIManager : MonoBehaviour
         var panel = MakePanel(parent, "ModeSelectPanel");
         SetStretch(panel.GetComponent<RectTransform>());
         var bg = panel.AddComponent<Image>();
-        bg.color = new Color(0.12f, 0.35f, 0.15f, 0.97f);
+        bg.color = new Color(0.06f, 0.16f, 0.08f, 0.97f);
         bg.raycastTarget = false;
 
         // Title
@@ -227,7 +227,7 @@ public class OthelloUIManager : MonoBehaviour
         // vs AI
         var vsAIBtn = MakeButton(panel, "vs_ai",
             new Vector2(0.15f, 0.38f), new Vector2(0.85f, 0.52f),
-            new Color(0.2f, 0.6f, 0.3f), () =>
+            new Color(0.16f, 0.60f, 0.26f), () =>
             {
                 _modeSelectPanel.SetActive(false);
                 _gamePanel.SetActive(true);
@@ -239,7 +239,7 @@ public class OthelloUIManager : MonoBehaviour
         // vs Human
         var vsHumanBtn = MakeButton(panel, "vs_human",
             new Vector2(0.15f, 0.22f), new Vector2(0.85f, 0.36f),
-            new Color(0.25f, 0.45f, 0.65f), () =>
+            new Color(0.20f, 0.42f, 0.68f), () =>
             {
                 _modeSelectPanel.SetActive(false);
                 _gamePanel.SetActive(true);
@@ -251,13 +251,13 @@ public class OthelloUIManager : MonoBehaviour
         // Records
         var recBtn = MakeButton(panel, "records",
             new Vector2(0.3f, 0.08f), new Vector2(0.7f, 0.18f),
-            new Color(0.4f, 0.4f, 0.4f), ShowRecords);
+            new Color(0.28f, 0.28f, 0.30f), ShowRecords);
         _localizedTexts.Add((recBtn.GetComponentInChildren<Text>(), () => Loc.Get("records")));
 
         // Language toggle (top-right corner)
         var langBtn = MakeButton(panel, "lang_mode",
             new Vector2(0.70f, 0.91f), new Vector2(0.99f, 0.99f),
-            new Color(0.15f, 0.3f, 0.55f), OnLangToggleClicked);
+            new Color(0.12f, 0.26f, 0.52f), OnLangToggleClicked);
         langBtn.GetComponentInChildren<Text>().fontSize = 32;
         _localizedTexts.Add((langBtn.GetComponentInChildren<Text>(), () => Loc.Get("lang_btn")));
 
@@ -279,7 +279,7 @@ public class OthelloUIManager : MonoBehaviour
         cardRT.offsetMin = Vector2.zero;
         cardRT.offsetMax = Vector2.zero;
         var cardImg = cardGO.AddComponent<Image>();
-        cardImg.color = new Color(0.12f, 0.35f, 0.15f, 1f);
+        cardImg.color = new Color(0.06f, 0.18f, 0.08f, 1f);
         cardImg.raycastTarget = false;
 
         var winnerGO = MakePanel(cardGO, "Winner");
@@ -299,12 +299,12 @@ public class OthelloUIManager : MonoBehaviour
 
         var replayBtn = MakeButton(cardGO, "play_again",
             new Vector2(0.05f, 0.05f), new Vector2(0.48f, 0.33f),
-            new Color(0.2f, 0.6f, 0.3f), OnReplayClicked);
+            new Color(0.16f, 0.60f, 0.26f), OnReplayClicked);
         _localizedTexts.Add((replayBtn.GetComponentInChildren<Text>(), () => Loc.Get("play_again")));
 
         var menuBtn = MakeButton(cardGO, "menu",
             new Vector2(0.52f, 0.05f), new Vector2(0.95f, 0.33f),
-            new Color(0.4f, 0.4f, 0.4f), OnMainMenuClicked);
+            new Color(0.28f, 0.28f, 0.30f), OnMainMenuClicked);
         _localizedTexts.Add((menuBtn.GetComponentInChildren<Text>(), () => Loc.Get("menu")));
 
         panel.SetActive(false);

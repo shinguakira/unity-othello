@@ -11,7 +11,7 @@ public class CameraSetup : MonoBehaviour
         if (cam == null) return;
 
         cam.orthographic = true;
-        cam.backgroundColor = new Color(0.08f, 0.08f, 0.08f);
+        cam.backgroundColor = new Color(0.04f, 0.06f, 0.04f);
 
         // Fit the 8-unit board to screen width with ~10% padding on sides
         // Board = 8 world units wide; we want visible width = 8 / 0.9 ≈ 8.89 units
