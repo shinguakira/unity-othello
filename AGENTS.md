@@ -1,61 +1,75 @@
-# AGENTS.md — unity-base
+# AGENTS.md — unity-othello
 
 Agent guidance for this repository. Read this before starting any work.
 
 ## Project Overview
 
-A generic Unity project template (Unity 2022.3 LTS).
-No external assets required — all audio and effects are procedurally generated.
-Intended as a starting point for new games.
+オセロ（リバーシ）ゲーム。Unity 2022.3 LTS、外部アセット不要。
+得点マス・秘密ミッションのボーナスルール付き。
 
 ## Directory Structure
 
 ```
-unity-base/
+unity-othello/
 ├── Assets/
-│   ├── Scenes/              # Add scene files here
+│   ├── Scenes/
+│   │   ├── Game.unity
+│   │   └── MainMenu.unity
 │   └── Scripts/
-│       ├── Game/            # Core systems (singletons, utilities)
-│       │   ├── GameManager.cs   # Game loop, Pause/Resume, scene transitions
-│       │   ├── SaveSystem.cs    # PlayerPrefs-based save/load
-│       │   ├── AudioManager.cs  # SFX and BGM playback
-│       │   ├── ScoreManager.cs  # Score and combo tracking
-│       │   ├── EventBus.cs      # Type-safe static event bus
-│       │   └── SceneLoader.cs   # Async scene loading
+│       ├── Game/
+│       │   ├── OthelloBoard.cs        # 盤面状態・石の配置・反転ロジック
+│       │   ├── OthelloGameManager.cs  # ターン管理・パス・ゲーム終了・ミッション割り当て
+│       │   ├── OthelloAI.cs           # MiniMax + alpha-beta (depth=3)
+│       │   ├── OthelloEvents.cs       # イベント定義 (struct)
+│       │   ├── BonusTileConfig.cs     # 得点マス配置・ボーナス計算
+│       │   ├── MissionData.cs         # ミッション定義・達成チェック・進捗
+│       │   ├── EventBus.cs            # 型安全 pub-sub
+│       │   ├── OthelloSaveSystem.cs   # PlayerPrefs セーブ
+│       │   ├── Loc.cs                 # 日英ローカライズ
+│       │   ├── GameManager.cs         # ポーズ・タイム管理
+│       │   ├── ScoreManager.cs        # コンボスコア
+│       │   └── SceneLoader.cs
+│       ├── View/
+│       │   ├── BoardView.cs           # ボード描画・イベント受信
+│       │   ├── CellView.cs            # セル描画・ボーナスタイルビジュアル
+│       │   └── PieceView.cs           # 石のアニメーション
 │       ├── UI/
-│       │   └── UIManager.cs     # Simple OnGUI-based UI
-│       └── Util/
-│           └── ObjectPool.cs    # Generic object pool
+│       │   ├── OthelloUIManager.cs    # ゲームUI・ミッションパネル・ゲームオーバー画面
+│       │   ├── UIManager.cs
+│       │   ├── MainMenuController.cs
+│       │   └── CameraSetup.cs
+│       └── Editor/
+│           ├── OthelloSceneBuilder.cs
+│           └── OthelloIconGenerator.cs
+├── Assets/Tests/EditMode/
+│   ├── OthelloTests.EditMode.asmdef
+│   ├── BonusTileConfigTests.cs
+│   └── MissionDataTests.cs
 ├── Packages/
-│   └── manifest.json        # Unity package dependencies
 ├── ProjectSettings/
-├── compile-check.sh         # Batch-mode compile check
-└── unity.sh                 # Unity Editor launcher
+└── unity.ps1                          # compile / Editor 起動
 ```
 
 ## Verifying Changes
 
-After any code change, run:
+コード変更後は必ずコンパイルチェックを実行すること。完了報告前に必須。
 
-```bash
-bash compile-check.sh
+```powershell
+.\unity.ps1 compile
 ```
 
-This runs a Unity batch-mode compile and reports errors. Zero errors required before submitting.
+Editor を開いた状態では実行不可。先に Unity を閉じること:
 
-**Important:** Unity must be fully closed before running `compile-check.sh` — batch mode cannot launch while the Editor is open. Kill it first:
-
-```bash
-taskkill //F //IM Unity.exe 2>/dev/null; bash compile-check.sh
+```powershell
+Stop-Process -Name Unity -ErrorAction SilentlyContinue; .\unity.ps1 compile
 ```
 
-**Important:** Never run **Othello → Build All Scenes** while Unity is in Play mode — `EditorSceneManager.NewScene()` throws `InvalidOperationException` during play. Stop Play mode first (the menu item now guards against this).
+テストは Unity Editor の **Window → General → Test Runner → EditMode** から実行。
 
 ## Coding Conventions
 
-### General Rules
-- **No namespaces** — all classes live in global scope
-- **MonoBehaviour singletons** follow this exact pattern:
+- **No namespaces** — 全クラスはグローバルスコープ
+- **MonoBehaviour singleton** パターン:
   ```csharp
   public static Foo Instance { get; private set; }
   void Awake() {
@@ -63,63 +77,22 @@ taskkill //F //IM Unity.exe 2>/dev/null; bash compile-check.sh
       Instance = this;
   }
   ```
-- **Avoid `FindObjectOfType<T>()`** — use `EventBus` for cross-system communication instead
-- **Comments only where logic is non-obvious** — no API description comments
+- **`FindObjectOfType<T>()` 禁止** — `EventBus` 経由で通信
+- ゲームロジックの変更は必ず `EventBus` イベントで通知
 
-### Cross-System Communication
-Use `EventBus` to keep systems decoupled:
-```csharp
-// Define event (prefer structs)
-struct PlayerDiedEvent { public int score; }
+## Touch/Modify Rules
 
-// Subscribe (manage in OnEnable/OnDisable)
-void OnEnable()  => EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
-void OnDisable() => EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
-void OnPlayerDied(PlayerDiedEvent e) { ... }
+**絶対に触らない:**
+- `OthelloBoard.GetValidMoves` / `GetAllFlips` / `PlacePiece`
+- `OthelloGameManager.HandlePass` / `SwitchPlayer`
 
-// Publish
-EventBus.Publish(new PlayerDiedEvent { score = 500 });
-```
-
-### Scene Loading
-Use synchronous `SceneManager.LoadScene` only for small scenes.
-Otherwise use `SceneLoader`:
-```csharp
-SceneLoader.Instance.LoadAsync("GameScene", progress => { }, () => Debug.Log("Done"));
-```
-
-### Object Pooling
-Use `ObjectPool` instead of `Instantiate/Destroy` in hot paths:
-```csharp
-ObjectPool.Instance.Prewarm("Bullet", bulletPrefab, 20);
-GameObject obj = ObjectPool.Instance.Get("Bullet", pos, rot);
-ObjectPool.Instance.Return("Bullet", obj);
-```
-
-## System Quick Reference
-
-| Class | Key API |
-|-------|---------|
-| `GameManager` | `.GameOver()` `.LevelClear()` `.Pause()` `.Resume()` `.RestartLevel()` `.LoadMainMenu()` |
-| `SaveSystem` | `UnlockLevel(n)` `SaveLevelStats(n, time)` `GetLevelBestTime(n)` `ClearAll()` |
-| `AudioManager` | `.PlaySFX(clip)` `.PlayFootstep()` |
-| `ScoreManager` | `.RegisterScore(pts)` `.GetTotalScore()` `.ResetScore()` |
-| `EventBus` | `Subscribe<T>(handler)` `Unsubscribe<T>(handler)` `Publish<T>(data)` `Clear()` |
-| `SceneLoader` | `.Load(name)` `.LoadAsync(name, onProgress, onComplete)` |
-| `ObjectPool` | `.Prewarm(key, prefab, n)` `.Get(key, pos, rot)` `.Return(key, obj)` |
-| `UIManager` | `.ShowGameOver()` `.ShowStageClear()` |
-
-## Adding New Features
-
-1. Place game systems in `Scripts/Game/`, utilities in `Scripts/Util/`
-2. Use the singleton pattern above for manager classes
-3. Communicate between systems via `EventBus`, avoid direct references
-4. Run `compile-check.sh` before submitting — zero errors required
-5. Do not manually create `.meta` files — Unity generates them automatically
+**スコア変更時に触る箇所:**
+- `OthelloGameManager.EndGame()` — ボーナス計算はここに集約
+- `OthelloEvents.GameOverEvent` — スコア関連フィールドはここで定義
 
 ## What Not To Do
 
-- Do not `Resources.Load()` heavily (increases build size and load times)
-- Do not call `FindObjectOfType<T>()` in `Update()`
-- Do not use `DontDestroyOnLoad` outside of singleton managers
-- Do not use `System.Threading.Thread` directly — Unity API is main-thread only
+- `Resources.Load()` を多用しない
+- `FindObjectOfType<T>()` を `Update()` 内で呼ばない
+- `.meta` ファイルを手動作成しない（Unity が自動生成）
+- コンパイルチェックせずに完了報告しない

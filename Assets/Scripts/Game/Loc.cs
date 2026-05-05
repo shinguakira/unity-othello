@@ -31,6 +31,24 @@ public static class Loc
         { "stat_high",     new[] { "High Score: ",       "ハイスコア：" } },
         { "lang_btn",      new[] { "日本語",              "English" } },
         { "version",       new[] { "v1.0",               "v1.0" } },
+
+        // Bonus tiles
+        { "tile_gold",     new[] { "Gold Tile +5",       "金マス +5" } },
+        { "tile_poison",   new[] { "Poison Tile -2",     "毒マス -2" } },
+
+        // Mission names
+        { "mission_x",           new[] { "Take 2+ X-squares",     "Xマスを2つ以上取る" } },
+        { "mission_few",         new[] { "End with ≤28 pieces",   "28枚以下で終える" } },
+        { "mission_center",      new[] { "Control 3+ center",     "中央を3マス取る" } },
+        { "mission_edges",       new[] { "Hold 12+ edges",        "辺を12枚取る" } },
+        { "mission_no_corners",  new[] { "Take no corners",       "角を取らない" } },
+
+        // Mission UI
+        { "your_mission",        new[] { "Your Mission",          "あなたのミッション" } },
+        { "opp_mission",         new[] { "Opponent",              "相手" } },
+        { "mission_achieved",    new[] { "ACHIEVED!",             "達成！" } },
+        { "mission_failed",      new[] { "Not achieved",          "未達成" } },
+        { "missions_revealed",   new[] { "Missions Revealed",     "ミッション公開" } },
     };
 
     static Loc()

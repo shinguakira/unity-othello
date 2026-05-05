@@ -26,6 +26,11 @@ public struct TurnChangedEvent
     public List<Vector2Int> validMoves;
     public int blackCount;
     public int whiteCount;
+    // Current player's mission (opponent's is always hidden as "???")
+    public string missionLocKey;   // Loc key → mission name
+    public string missionProgress; // e.g. "1/2"
+    public int missionBonus;       // e.g. 8
+    public bool vsAI;              // true when playing against AI
 }
 
 public struct PassTurnEvent
@@ -37,7 +42,13 @@ public struct GameOverEvent
 {
     public int blackCount;
     public int whiteCount;
-    public int winner; // 0=draw, 1=black, 2=white
+    public int blackTileBonus;
+    public int whiteTileBonus;
+    public MissionData blackMission;
+    public MissionData whiteMission;
+    public bool blackMissionAchieved;
+    public bool whiteMissionAchieved;
+    public int winner; // 0=draw, 1=black, 2=white  (based on total score)
 }
 
 public struct BoardResetEvent { }

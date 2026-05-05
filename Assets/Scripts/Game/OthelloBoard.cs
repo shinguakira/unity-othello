@@ -67,6 +67,9 @@ public class OthelloBoard
         return count;
     }
 
+    public int GetBonusScore(int playerColor)
+        => BonusTileConfig.CalcBonusScore(_board, playerColor);
+
     public int[,] GetBoardCopy()
     {
         var copy = new int[8, 8];
