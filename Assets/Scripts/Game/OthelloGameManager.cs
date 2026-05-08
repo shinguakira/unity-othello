@@ -151,7 +151,12 @@ public class OthelloGameManager : MonoBehaviour
         if (_gameOver) yield break;
 
         Vector2Int move = OthelloAI.ChooseMoveMinMax(_board, 2, 3);
-        if (move.x == -1) yield break;
+        if (move.x == -1)
+        {
+            Debug.LogWarning("AI returned no move despite valid moves being available; falling through to pass.");
+            HandlePass();
+            yield break;
+        }
 
         _board.PlacePiece(move.x, move.y, 2);
         SwitchPlayer();

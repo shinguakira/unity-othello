@@ -22,9 +22,17 @@ public class OthelloUIManager : MonoBehaviour
     Text _whiteScoreText;
     Text _turnIndicatorText;
 
+    // Mission panel (shown during gameplay, bottom of screen)
+    Text _missionLabelText;   // "Your Mission:"
+    Text _missionNameText;    // mission name (localized)
+    Text _missionProgressText;// "1/2 → +8pt"
+
     // Game over UI
     Text _winnerText;
-    Text _gameOverScoreText;
+    Text _gameOverBlackText;  // "● 28 + 5 + 8 = 41"
+    Text _gameOverWhiteText;  // "○ 24 + 0 + 0 = 24"
+    Text _blackMissionReveal; // "● Black Mission: ...\nACHIEVED! +8"
+    Text _whiteMissionReveal; // "○ White Mission: ...\nNot achieved"
 
     // Pass toast
     Text _passToastText;
@@ -35,6 +43,8 @@ public class OthelloUIManager : MonoBehaviour
         new List<(Text, System.Func<string>)>();
     int _lastTurnPlayer = 1;
     int _lastWinner = -1;
+    GameOverEvent _lastGameOver;
+    bool _hasGameOver;
 
     Font _font;
 
@@ -54,8 +64,8 @@ public class OthelloUIManager : MonoBehaviour
     IEnumerator InitUI()
     {
         CreateUI();
-        yield return null; // frame 1: StandaloneInputModule runs first Update()
-        yield return null; // frame 2: pointer state fully settled
+        yield return null;
+        yield return null;
         if (EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(null);
         ShowModeSelect();
@@ -114,11 +124,11 @@ public class OthelloUIManager : MonoBehaviour
         SetStretch(_gamePanel.GetComponent<RectTransform>());
         _gamePanel.SetActive(false);
 
+        BuildMissionPanel(_gamePanel);
     }
 
-    // Top bar: [HOME btn | ● score | turn | ○ score | LANG btn]
-    // Height 160px. HOME and LANG buttons are always present but HOME is
-    // hidden until a game starts — it is the primary navigation affordance.
+    // Top bar: [HOME btn | ● score | turn | ○ score]
+    // Language toggle lives only on the title (mode-select) screen.
     void BuildTopBar(GameObject parent)
     {
         var bar = MakePanel(parent, "TopBar");
@@ -133,7 +143,6 @@ public class OthelloUIManager : MonoBehaviour
         bg.color = new Color(0.05f, 0.05f, 0.05f, 0.97f);
         bg.raycastTarget = false;
 
-        // ── HOME button (left 20%) — orange, very visible, hidden until in-game
         _homeBtnGO = MakeButton(bar, "title_btn",
             new Vector2(0.005f, 0.08f), new Vector2(0.195f, 0.92f),
             new Color(0.72f, 0.50f, 0.08f), OnTitleButtonClicked);
@@ -141,7 +150,7 @@ public class OthelloUIManager : MonoBehaviour
         _localizedTexts.Add((_homeBtnGO.GetComponentInChildren<Text>(), () => Loc.Get("title_btn")));
         _homeBtnGO.SetActive(false);
 
-        // ── Black score (20–43%)
+        // Black score (20–43%)
         var blackGO = MakePanel(bar, "BlackScore");
         var brt = blackGO.GetComponent<RectTransform>();
         brt.anchorMin = new Vector2(0.20f, 0f);
@@ -152,7 +161,7 @@ public class OthelloUIManager : MonoBehaviour
         _blackScoreText = MakeText(blackGO, "2", 56, Color.white, TextAnchor.MiddleCenter);
         AddColorDot(blackGO, Color.black, new Vector2(0.12f, 0.5f));
 
-        // ── Turn indicator (43–57%)
+        // Turn indicator (43–57%)
         var turnGO = MakePanel(bar, "TurnIndicator");
         var trt = turnGO.GetComponent<RectTransform>();
         trt.anchorMin = new Vector2(0.43f, 0f);
@@ -162,22 +171,15 @@ public class OthelloUIManager : MonoBehaviour
         _turnIndicatorText = MakeText(turnGO, Loc.Get("black_turn"), 28,
             new Color(0.75f, 0.75f, 0.75f), TextAnchor.MiddleCenter);
 
-        // ── White score (57–80%)
+        // White score (57–100%)
         var whiteGO = MakePanel(bar, "WhiteScore");
         var wrt = whiteGO.GetComponent<RectTransform>();
         wrt.anchorMin = new Vector2(0.57f, 0f);
-        wrt.anchorMax = new Vector2(0.80f, 1f);
+        wrt.anchorMax = new Vector2(1f, 1f);
         wrt.offsetMin = Vector2.zero;
         wrt.offsetMax = Vector2.zero;
         _whiteScoreText = MakeText(whiteGO, "2", 56, new Color(0.9f, 0.9f, 0.9f), TextAnchor.MiddleCenter);
-        AddColorDot(whiteGO, Color.white, new Vector2(0.88f, 0.5f));
-
-        // ── Language toggle (right 20%) — always visible
-        var langBtn = MakeButton(bar, "lang_btn",
-            new Vector2(0.805f, 0.08f), new Vector2(0.995f, 0.92f),
-            new Color(0.12f, 0.26f, 0.52f), OnLangToggleClicked);
-        langBtn.GetComponentInChildren<Text>().fontSize = 30;
-        _localizedTexts.Add((langBtn.GetComponentInChildren<Text>(), () => Loc.Get("lang_btn")));
+        AddColorDot(whiteGO, Color.white, new Vector2(0.9f, 0.5f));
     }
 
     void AddColorDot(GameObject parent, Color color, Vector2 anchor)
@@ -194,6 +196,49 @@ public class OthelloUIManager : MonoBehaviour
         img.raycastTarget = false;
     }
 
+    // Mission bar at the bottom of the game panel
+    // Shows the current player's mission + progress; opponent shown as "???"
+    void BuildMissionPanel(GameObject parent)
+    {
+        var panel = MakePanel(parent, "MissionPanel");
+        var rt = panel.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0f, 0f);
+        rt.anchorMax = new Vector2(1f, 0.10f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        var bg = panel.AddComponent<Image>();
+        bg.color = new Color(0f, 0f, 0f, 0.80f);
+        bg.raycastTarget = false;
+
+        // Label: "Your Mission:" — left 30%
+        var labelGO = MakePanel(panel, "MissionLabel");
+        labelGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0f);
+        labelGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.30f, 1f);
+        labelGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        labelGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        _missionLabelText = MakeText(labelGO, Loc.Get("your_mission"),
+            26, new Color(0.7f, 0.7f, 0.7f), TextAnchor.MiddleLeft);
+        _localizedTexts.Add((_missionLabelText, () => Loc.Get("your_mission")));
+
+        // Mission name — center 42%
+        var nameGO = MakePanel(panel, "MissionName");
+        nameGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.30f, 0f);
+        nameGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.72f, 1f);
+        nameGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        nameGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        _missionNameText = MakeText(nameGO, "---", 28, Color.white, TextAnchor.MiddleCenter, true);
+
+        // Progress + bonus — right 28%
+        var progGO = MakePanel(panel, "MissionProgress");
+        progGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.72f, 0f);
+        progGO.GetComponent<RectTransform>().anchorMax = new Vector2(1.00f, 1f);
+        progGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        progGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        _missionProgressText = MakeText(progGO, "", 26,
+            new Color(1f, 0.85f, 0.3f), TextAnchor.MiddleCenter);
+    }
+
     GameObject BuildModeSelectPanel(GameObject parent)
     {
         var panel = MakePanel(parent, "ModeSelectPanel");
@@ -202,18 +247,16 @@ public class OthelloUIManager : MonoBehaviour
         bg.color = new Color(0.06f, 0.16f, 0.08f, 0.97f);
         bg.raycastTarget = false;
 
-        // Title
         var titleGO = MakePanel(panel, "Title");
         var titleRT = titleGO.GetComponent<RectTransform>();
         titleRT.anchorMin = new Vector2(0.1f, 0.65f);
         titleRT.anchorMax = new Vector2(0.9f, 0.85f);
         titleRT.offsetMin = Vector2.zero;
         titleRT.offsetMax = Vector2.zero;
-        var titleText = MakeText(titleGO, Loc.Get("title"), 96, Color.white, TextAnchor.MiddleCenter);
+        var titleText = MakeText(titleGO, Loc.Get("title"), 96, Color.white, TextAnchor.MiddleCenter, true);
         titleText.fontStyle = FontStyle.Bold;
         _localizedTexts.Add((titleText, () => Loc.Get("title")));
 
-        // Subtitle
         var subGO = MakePanel(panel, "Sub");
         var subRT = subGO.GetComponent<RectTransform>();
         subRT.anchorMin = new Vector2(0.1f, 0.57f);
@@ -221,10 +264,9 @@ public class OthelloUIManager : MonoBehaviour
         subRT.offsetMin = Vector2.zero;
         subRT.offsetMax = Vector2.zero;
         var subText = MakeText(subGO, Loc.Get("select_mode"), 42,
-            new Color(0.8f, 0.9f, 0.8f), TextAnchor.MiddleCenter);
+            new Color(0.8f, 0.9f, 0.8f), TextAnchor.MiddleCenter, true);
         _localizedTexts.Add((subText, () => Loc.Get("select_mode")));
 
-        // vs AI
         var vsAIBtn = MakeButton(panel, "vs_ai",
             new Vector2(0.15f, 0.38f), new Vector2(0.85f, 0.52f),
             new Color(0.16f, 0.60f, 0.26f), () =>
@@ -236,7 +278,6 @@ public class OthelloUIManager : MonoBehaviour
             });
         _localizedTexts.Add((vsAIBtn.GetComponentInChildren<Text>(), () => Loc.Get("vs_ai")));
 
-        // vs Human
         var vsHumanBtn = MakeButton(panel, "vs_human",
             new Vector2(0.15f, 0.22f), new Vector2(0.85f, 0.36f),
             new Color(0.20f, 0.42f, 0.68f), () =>
@@ -248,13 +289,11 @@ public class OthelloUIManager : MonoBehaviour
             });
         _localizedTexts.Add((vsHumanBtn.GetComponentInChildren<Text>(), () => Loc.Get("vs_human")));
 
-        // Records
         var recBtn = MakeButton(panel, "records",
             new Vector2(0.3f, 0.08f), new Vector2(0.7f, 0.18f),
             new Color(0.28f, 0.28f, 0.30f), ShowRecords);
         _localizedTexts.Add((recBtn.GetComponentInChildren<Text>(), () => Loc.Get("records")));
 
-        // Language toggle (top-right corner)
         var langBtn = MakeButton(panel, "lang_mode",
             new Vector2(0.70f, 0.91f), new Vector2(0.99f, 0.99f),
             new Color(0.12f, 0.26f, 0.52f), OnLangToggleClicked);
@@ -264,46 +303,90 @@ public class OthelloUIManager : MonoBehaviour
         return panel;
     }
 
+    // Game over card — taller to accommodate score breakdown + mission reveals
     GameObject BuildGameOverPanel(GameObject parent)
     {
         var panel = MakePanel(parent, "GameOverPanel");
         SetStretch(panel.GetComponent<RectTransform>());
         var dimBg = panel.AddComponent<Image>();
-        dimBg.color = new Color(0f, 0f, 0f, 0.82f);
+        dimBg.color = new Color(0f, 0f, 0f, 0.85f);
         dimBg.raycastTarget = false;
 
         var cardGO = MakePanel(panel, "Card");
         var cardRT = cardGO.GetComponent<RectTransform>();
-        cardRT.anchorMin = new Vector2(0.08f, 0.3f);
-        cardRT.anchorMax = new Vector2(0.92f, 0.72f);
+        cardRT.anchorMin = new Vector2(0.04f, 0.06f);
+        cardRT.anchorMax = new Vector2(0.96f, 0.94f);
         cardRT.offsetMin = Vector2.zero;
         cardRT.offsetMax = Vector2.zero;
         var cardImg = cardGO.AddComponent<Image>();
         cardImg.color = new Color(0.06f, 0.18f, 0.08f, 1f);
         cardImg.raycastTarget = false;
 
+        // Winner (top 16%)
         var winnerGO = MakePanel(cardGO, "Winner");
-        winnerGO.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0.62f);
-        winnerGO.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1f);
+        winnerGO.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0.84f);
+        winnerGO.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1.00f);
         winnerGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
         winnerGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-        _winnerText = MakeText(winnerGO, "", 72, Color.white, TextAnchor.MiddleCenter);
+        _winnerText = MakeText(winnerGO, "", 66, Color.white, TextAnchor.MiddleCenter, true);
         _winnerText.fontStyle = FontStyle.Bold;
 
-        var scoreGO = MakePanel(cardGO, "Score");
-        scoreGO.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0.38f);
-        scoreGO.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 0.62f);
-        scoreGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-        scoreGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-        _gameOverScoreText = MakeText(scoreGO, "", 52, new Color(0.9f, 0.9f, 0.9f), TextAnchor.MiddleCenter);
+        // Score breakdown — black (68–84%)
+        var blackScoreGO = MakePanel(cardGO, "BlackScore");
+        blackScoreGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.68f);
+        blackScoreGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.84f);
+        blackScoreGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        blackScoreGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        _gameOverBlackText = MakeText(blackScoreGO, "", 38, Color.white, TextAnchor.MiddleCenter, true);
 
+        // Score breakdown — white (52–68%)
+        var whiteScoreGO = MakePanel(cardGO, "WhiteScore");
+        whiteScoreGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.52f);
+        whiteScoreGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.68f);
+        whiteScoreGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        whiteScoreGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        _gameOverWhiteText = MakeText(whiteScoreGO, "", 38, new Color(0.85f, 0.85f, 0.85f), TextAnchor.MiddleCenter, true);
+
+        // Mission reveal divider label (45–52%)
+        var divGO = MakePanel(cardGO, "MissionDivider");
+        divGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.45f);
+        divGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.52f);
+        divGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        divGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        var divText = MakeText(divGO, Loc.Get("missions_revealed"), 28,
+            new Color(0.6f, 0.9f, 0.6f), TextAnchor.MiddleCenter);
+        _localizedTexts.Add((divText, () => Loc.Get("missions_revealed")));
+
+        // Black mission reveal (28–45%)
+        var blackMissGO = MakePanel(cardGO, "BlackMission");
+        blackMissGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.28f);
+        blackMissGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.45f);
+        blackMissGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        blackMissGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        var blackMissBg = blackMissGO.AddComponent<Image>();
+        blackMissBg.color = new Color(0f, 0f, 0f, 0.25f);
+        blackMissBg.raycastTarget = false;
+        _blackMissionReveal = MakeText(blackMissGO, "", 30, Color.white, TextAnchor.MiddleCenter, true);
+
+        // White mission reveal (11–28%)
+        var whiteMissGO = MakePanel(cardGO, "WhiteMission");
+        whiteMissGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.11f);
+        whiteMissGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.28f);
+        whiteMissGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        whiteMissGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        var whiteMissBg = whiteMissGO.AddComponent<Image>();
+        whiteMissBg.color = new Color(0f, 0f, 0f, 0.25f);
+        whiteMissBg.raycastTarget = false;
+        _whiteMissionReveal = MakeText(whiteMissGO, "", 30, new Color(0.85f, 0.85f, 0.85f), TextAnchor.MiddleCenter, true);
+
+        // Buttons (0–11%)
         var replayBtn = MakeButton(cardGO, "play_again",
-            new Vector2(0.05f, 0.05f), new Vector2(0.48f, 0.33f),
+            new Vector2(0.05f, 0.01f), new Vector2(0.48f, 0.10f),
             new Color(0.16f, 0.60f, 0.26f), OnReplayClicked);
         _localizedTexts.Add((replayBtn.GetComponentInChildren<Text>(), () => Loc.Get("play_again")));
 
         var menuBtn = MakeButton(cardGO, "menu",
-            new Vector2(0.52f, 0.05f), new Vector2(0.95f, 0.33f),
+            new Vector2(0.52f, 0.01f), new Vector2(0.95f, 0.10f),
             new Color(0.28f, 0.28f, 0.30f), OnMainMenuClicked);
         _localizedTexts.Add((menuBtn.GetComponentInChildren<Text>(), () => Loc.Get("menu")));
 
@@ -337,6 +420,19 @@ public class OthelloUIManager : MonoBehaviour
         _blackScoreText.text = e.blackCount.ToString();
         _whiteScoreText.text = e.whiteCount.ToString();
         _turnIndicatorText.text = e.playerColor == 1 ? Loc.Get("black_turn") : Loc.Get("white_turn");
+
+        // Mission panel: show current player's mission; hide AI mission in PvAI mode
+        bool hideAsMystery = e.vsAI && e.playerColor == 2;
+        if (hideAsMystery)
+        {
+            _missionNameText.text     = "???";
+            _missionProgressText.text = "";
+        }
+        else
+        {
+            _missionNameText.text     = Loc.Get(e.missionLocKey);
+            _missionProgressText.text = e.missionProgress + "  +" + e.missionBonus + "pt";
+        }
     }
 
     void OnPassTurn(PassTurnEvent e)
@@ -348,15 +444,40 @@ public class OthelloUIManager : MonoBehaviour
 
     void OnGameOver(GameOverEvent e)
     {
-        _lastWinner = e.winner;
+        _lastWinner  = e.winner;
+        _hasGameOver = true;
+        _lastGameOver = e;
         _gameOverPanel.SetActive(true);
         _homeBtnGO.SetActive(false);
+        UpdateGameOverTexts(e);
+    }
 
+    void UpdateGameOverTexts(GameOverEvent e)
+    {
         string result = e.winner == 0 ? Loc.Get("draw")
                       : e.winner == 1 ? Loc.Get("black_wins")
                       :                 Loc.Get("white_wins");
         _winnerText.text = result;
-        _gameOverScoreText.text = $"● {e.blackCount}   ○ {e.whiteCount}";
+
+        int blackMissionPts = e.blackMissionAchieved ? e.blackMission.Bonus : 0;
+        int whiteMissionPts = e.whiteMissionAchieved ? e.whiteMission.Bonus : 0;
+        int blackTotal = e.blackCount + e.blackTileBonus + blackMissionPts;
+        int whiteTotal = e.whiteCount + e.whiteTileBonus + whiteMissionPts;
+
+        _gameOverBlackText.text = $"● {e.blackCount} + {e.blackTileBonus} + {blackMissionPts} = {blackTotal}";
+        _gameOverWhiteText.text = $"○ {e.whiteCount} + {e.whiteTileBonus} + {whiteMissionPts} = {whiteTotal}";
+
+        string blackAchievedStr = e.blackMissionAchieved
+            ? Loc.Get("mission_achieved") + " +" + e.blackMission.Bonus
+            : Loc.Get("mission_failed");
+        _blackMissionReveal.text =
+            $"●  {Loc.Get(e.blackMission.GetLocKey())}\n{blackAchievedStr}";
+
+        string whiteAchievedStr = e.whiteMissionAchieved
+            ? Loc.Get("mission_achieved") + " +" + e.whiteMission.Bonus
+            : Loc.Get("mission_failed");
+        _whiteMissionReveal.text =
+            $"○  {Loc.Get(e.whiteMission.GetLocKey())}\n{whiteAchievedStr}";
     }
 
     IEnumerator ShowPassToast(string message)
@@ -372,6 +493,7 @@ public class OthelloUIManager : MonoBehaviour
         _gameOverPanel.SetActive(false);
         _gamePanel.SetActive(false);
         _homeBtnGO.SetActive(false);
+        _hasGameOver = false;
         ShowModeSelect();
     }
 
@@ -380,6 +502,7 @@ public class OthelloUIManager : MonoBehaviour
         _gameOverPanel.SetActive(false);
         _gamePanel.SetActive(false);
         _homeBtnGO.SetActive(false);
+        _hasGameOver = false;
         ShowModeSelect();
     }
 
@@ -387,6 +510,7 @@ public class OthelloUIManager : MonoBehaviour
     {
         _gamePanel.SetActive(false);
         _homeBtnGO.SetActive(false);
+        _hasGameOver = false;
         ShowModeSelect();
     }
 
@@ -410,6 +534,9 @@ public class OthelloUIManager : MonoBehaviour
                              : _lastWinner == 1 ? Loc.Get("black_wins")
                              :                    Loc.Get("white_wins");
         }
+
+        if (_hasGameOver)
+            UpdateGameOverTexts(_lastGameOver);
     }
 
     void ShowModeSelect()
@@ -470,7 +597,8 @@ public class OthelloUIManager : MonoBehaviour
         return go;
     }
 
-    Text MakeText(GameObject parent, string content, int fontSize, Color color, TextAnchor alignment)
+    Text MakeText(GameObject parent, string content, int fontSize, Color color, TextAnchor alignment,
+                  bool autoSize = false)
     {
         var go = new GameObject("Text");
         go.transform.SetParent(parent.transform, false);
@@ -483,7 +611,12 @@ public class OthelloUIManager : MonoBehaviour
         text.fontSize = fontSize;
         text.color = color;
         text.alignment = alignment;
-        text.resizeTextForBestFit = false;
+        text.resizeTextForBestFit = autoSize;
+        if (autoSize)
+        {
+            text.resizeTextMinSize = Mathf.Max(12, fontSize / 3);
+            text.resizeTextMaxSize = fontSize;
+        }
         return text;
     }
 
@@ -509,7 +642,7 @@ public class OthelloUIManager : MonoBehaviour
         btn.colors = colors;
         btn.onClick.AddListener(onClick);
 
-        MakeText(go, Loc.Get(key), 48, Color.white, TextAnchor.MiddleCenter);
+        MakeText(go, Loc.Get(key), 48, Color.white, TextAnchor.MiddleCenter, true);
         return go;
     }
 }
