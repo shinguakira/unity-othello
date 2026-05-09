@@ -28,7 +28,7 @@ public static class Loc
         { "you_win",       new[] { "You Win!",           "あなたの勝ち！" } },
         { "you_lose",      new[] { "You Lose",           "あなたの負け" } },
         { "you_played_as", new[] { "you played as",      "プレイしたのは" } },
-        { "mission_complete", new[] { "🎉 Mission Complete!", "🎉 ミッション達成！" } },
+        { "mission_complete", new[] { "Mission Complete!",   "ミッション達成！" } },
         { "stat_games",    new[] { "Games Played: ",     "プレイ数：" } },
         { "stat_black",    new[] { "Black Wins: ",       "黒の勝利：" } },
         { "stat_white",    new[] { "White Wins: ",       "白の勝利：" } },

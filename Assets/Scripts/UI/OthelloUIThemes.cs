@@ -1000,7 +1000,7 @@ public partial class OthelloUIManager
 
         // Mode buttons styled as game cells (colored cell + a piece icon)
         BuildPiecesCellButton(card, "vs_ai",   0.10f, 0.55f, 0.90f, 0.66f, "▶", "play against the engine", PInk,    PCream, () => StartGame(true));
-        BuildPiecesCellButton(card, "vs_human",0.10f, 0.43f, 0.90f, 0.54f, "👥", "two-player local",         PRed,    PCream, () => StartGame(false));
+        BuildPiecesCellButton(card, "vs_human",0.10f, 0.43f, 0.90f, 0.54f, "○●", "two-player local",         PRed,    PCream, () => StartGame(false));
         BuildPiecesCellButton(card, "records", 0.10f, 0.31f, 0.90f, 0.42f, "▦", "history of past matches",   PFelt,   PCream, ShowRecords);
 
         // Stats strip
