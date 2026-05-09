@@ -192,8 +192,12 @@ public partial class OthelloUIManager : MonoBehaviour
         return go;
     }
 
-    // Top bar: [HOME btn | ● score | turn | ○ score]
-    // Language toggle lives only on the title (mode-select) screen.
+    // Top bar — two stacked rows so each line breathes:
+    //   row 1 (upper): HOME button (alone, taller)
+    //   row 2 (lower): [ ● score | turn indicator | ○ score ]
+    // Total height 240px. Language toggle lives only on the title screen.
+    const float TopBarHeight = 240f;
+
     void BuildTopBar(GameObject parent)
     {
         var bar = MakePanel(parent, "TopBar");
@@ -201,50 +205,63 @@ public partial class OthelloUIManager : MonoBehaviour
         rt.anchorMin = new Vector2(0f, 1f);
         rt.anchorMax = new Vector2(1f, 1f);
         rt.pivot     = new Vector2(0.5f, 1f);
-        rt.offsetMin = new Vector2(0f, -160f);
+        rt.offsetMin = new Vector2(0f, -TopBarHeight);
         rt.offsetMax = Vector2.zero;
 
         var bg = bar.AddComponent<Image>();
         bg.color = new Color(0.05f, 0.05f, 0.05f, 0.97f);
         bg.raycastTarget = false;
 
+        // Hairline divider between the two rows
+        var divider = MakePanel(bar, "RowDivider");
+        var drt = divider.GetComponent<RectTransform>();
+        drt.anchorMin = new Vector2(0.04f, 0.495f);
+        drt.anchorMax = new Vector2(0.96f, 0.50f);
+        drt.offsetMin = Vector2.zero; drt.offsetMax = Vector2.zero;
+        divider.AddComponent<Image>().color = new Color(0.18f, 0.18f, 0.20f, 1f);
+
+        // ── Upper row: HOME button (Y 0.50 – 0.96)
         _homeBtnGO = MakeButton(bar, "title_btn",
-            new Vector2(0.005f, 0.08f), new Vector2(0.195f, 0.92f),
+            new Vector2(0.05f, 0.55f), new Vector2(0.95f, 0.95f),
             new Color(0.72f, 0.50f, 0.08f), OnTitleButtonClicked);
-        _homeBtnGO.GetComponentInChildren<Text>().fontSize = 30;
+        _homeBtnGO.GetComponentInChildren<Text>().fontSize = 36;
         _localizedTexts.Add((_homeBtnGO.GetComponentInChildren<Text>(), () => Loc.Get("title_btn")));
         _homeBtnGO.SetActive(false);
 
-        // Black score (20–43%)
+        // ── Lower row: scores + turn indicator (Y 0.05 – 0.48)
+        const float rowYMin = 0.05f;
+        const float rowYMax = 0.48f;
+
+        // Black score (X 0.04 – 0.32)
         var blackGO = MakePanel(bar, "BlackScore");
         var brt = blackGO.GetComponent<RectTransform>();
-        brt.anchorMin = new Vector2(0.20f, 0f);
-        brt.anchorMax = new Vector2(0.43f, 1f);
+        brt.anchorMin = new Vector2(0.04f, rowYMin);
+        brt.anchorMax = new Vector2(0.32f, rowYMax);
         brt.offsetMin = Vector2.zero;
         brt.offsetMax = Vector2.zero;
         blackGO.AddComponent<Image>().color = Color.clear;
         _blackScoreText = MakeText(blackGO, "2", 56, Color.white, TextAnchor.MiddleCenter);
         AddColorDot(blackGO, Color.black, new Vector2(0.12f, 0.5f));
 
-        // Turn indicator (43–57%)
+        // Turn indicator (X 0.32 – 0.68)
         var turnGO = MakePanel(bar, "TurnIndicator");
         var trt = turnGO.GetComponent<RectTransform>();
-        trt.anchorMin = new Vector2(0.43f, 0f);
-        trt.anchorMax = new Vector2(0.57f, 1f);
+        trt.anchorMin = new Vector2(0.32f, rowYMin);
+        trt.anchorMax = new Vector2(0.68f, rowYMax);
         trt.offsetMin = Vector2.zero;
         trt.offsetMax = Vector2.zero;
-        _turnIndicatorText = MakeText(turnGO, Loc.Get("black_turn"), 28,
+        _turnIndicatorText = MakeText(turnGO, Loc.Get("black_turn"), 32,
             new Color(0.75f, 0.75f, 0.75f), TextAnchor.MiddleCenter);
 
-        // White score (57–100%)
+        // White score (X 0.68 – 0.96)
         var whiteGO = MakePanel(bar, "WhiteScore");
         var wrt = whiteGO.GetComponent<RectTransform>();
-        wrt.anchorMin = new Vector2(0.57f, 0f);
-        wrt.anchorMax = new Vector2(1f, 1f);
+        wrt.anchorMin = new Vector2(0.68f, rowYMin);
+        wrt.anchorMax = new Vector2(0.96f, rowYMax);
         wrt.offsetMin = Vector2.zero;
         wrt.offsetMax = Vector2.zero;
         _whiteScoreText = MakeText(whiteGO, "2", 56, new Color(0.9f, 0.9f, 0.9f), TextAnchor.MiddleCenter);
-        AddColorDot(whiteGO, Color.white, new Vector2(0.9f, 0.5f));
+        AddColorDot(whiteGO, Color.white, new Vector2(0.88f, 0.5f));
     }
 
     void AddColorDot(GameObject parent, Color color, Vector2 anchor)
@@ -268,10 +285,10 @@ public partial class OthelloUIManager : MonoBehaviour
     {
         var panel = MakePanel(parent, "MissionPanel");
         var rt = panel.GetComponent<RectTransform>();
-        // TopBar covers 1.000 - 160/1920 = 0.9167 to 1.000.
-        // Mission slots into 0.832 - 0.916 (~84px tall band right under it).
-        rt.anchorMin = new Vector2(0f, 0.832f);
-        rt.anchorMax = new Vector2(1f, 0.916f);
+        // TopBar now 240px tall = 1.000 - 240/1920 = 0.875 to 1.000.
+        // Mission slots into 0.79 - 0.875 (~84px band right under TopBar).
+        rt.anchorMin = new Vector2(0f, 0.790f);
+        rt.anchorMax = new Vector2(1f, 0.875f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
 
@@ -540,8 +557,10 @@ public partial class OthelloUIManager : MonoBehaviour
         // for ~2.0s when a mission flips from incomplete to complete.
         var panel = MakePanel(parent, "MissionSnackbar");
         var rt = panel.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.06f, 0.745f);
-        rt.anchorMax = new Vector2(0.94f, 0.825f);
+        // Floats just below the new mission strip (which sits at
+        // 0.79–0.875 because TopBar grew to 240px).
+        rt.anchorMin = new Vector2(0.06f, 0.700f);
+        rt.anchorMax = new Vector2(0.94f, 0.780f);
         rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
 
         var bg = panel.AddComponent<Image>();

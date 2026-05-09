@@ -25,7 +25,7 @@ public class CameraSetup : MonoBehaviour
         // Mobile-friendly layout: TopBar at top, Mission strip just below it,
         // Board pushed toward the bottom for easy thumb reach. Bottom padding
         // is small so the board sits low without clipping.
-        const float topFrac     = 160f / 1920f;  // TopBar (~0.0833)
+        const float topFrac     = 240f / 1920f;  // TopBar (now 2 rows, ~0.125)
         const float missionFrac = 0.084f;        // Mission strip below TopBar
         const float gapAbove    = 0.012f;        // breathing space above board
         const float bottomPad   = 0.04f;         // small bottom padding
