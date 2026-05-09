@@ -30,6 +30,7 @@ public struct TurnChangedEvent
     public string missionLocKey;   // Loc key → mission name
     public string missionProgress; // e.g. "1/2"
     public int missionBonus;       // e.g. 8
+    public bool missionAchieved;   // current state of THIS player's mission
     public bool vsAI;              // true when playing against AI
 }
 

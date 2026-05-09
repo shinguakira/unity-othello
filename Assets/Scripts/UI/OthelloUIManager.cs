@@ -41,6 +41,13 @@ public partial class OthelloUIManager : MonoBehaviour
     static readonly Color TurnIndicatorNormal = new Color(0.75f, 0.75f, 0.75f);
     static readonly Color TurnIndicatorPass   = new Color(1f, 0.78f, 0.30f);
 
+    // Mission completion celebration: flash the mission bar text + green tint
+    Coroutine _missionFlashCoroutine;
+    static readonly Color MissionAchieved = new Color(0.42f, 0.86f, 0.42f);
+    static readonly Color MissionPending  = new Color(1f, 0.85f, 0.30f);
+    bool _blackMissionAchieved;
+    bool _whiteMissionAchieved;
+
     // Localization refresh
     readonly List<(Text t, System.Func<string> getter)> _localizedTexts =
         new List<(Text, System.Func<string>)>();
@@ -48,6 +55,7 @@ public partial class OthelloUIManager : MonoBehaviour
     int _lastWinner = -1;
     GameOverEvent _lastGameOver;
     bool _hasGameOver;
+    bool _isVsAI;
 
     Font _font;
 
@@ -80,6 +88,7 @@ public partial class OthelloUIManager : MonoBehaviour
         EventBus.Subscribe<TurnChangedEvent>(OnTurnChanged);
         EventBus.Subscribe<PassTurnEvent>(OnPassTurn);
         EventBus.Subscribe<GameOverEvent>(OnGameOver);
+        EventBus.Subscribe<GameModeSelectedEvent>(OnGameModeSelectedUI);
     }
 
     void OnDisable()
@@ -87,6 +96,17 @@ public partial class OthelloUIManager : MonoBehaviour
         EventBus.Unsubscribe<TurnChangedEvent>(OnTurnChanged);
         EventBus.Unsubscribe<PassTurnEvent>(OnPassTurn);
         EventBus.Unsubscribe<GameOverEvent>(OnGameOver);
+        EventBus.Unsubscribe<GameModeSelectedEvent>(OnGameModeSelectedUI);
+    }
+
+    // Reset per-game UI state when a new game starts.
+    void OnGameModeSelectedUI(GameModeSelectedEvent e)
+    {
+        _isVsAI = e.vsAI;
+        _blackMissionAchieved = false;
+        _whiteMissionAchieved = false;
+        _hasGameOver = false;
+        _missionProgressText.color = MissionPending;
     }
 
     // ── UI Construction ─────────────────────────────────────────────────────
@@ -486,12 +506,57 @@ public partial class OthelloUIManager : MonoBehaviour
         {
             _missionNameText.text     = "???";
             _missionProgressText.text = "";
+            _missionProgressText.color = MissionPending;
         }
         else
         {
             _missionNameText.text     = Loc.Get(e.missionLocKey);
-            _missionProgressText.text = e.missionProgress + "  +" + e.missionBonus + "pt";
+            string achievedMark = e.missionAchieved ? "  ✓" : "";
+            _missionProgressText.text = e.missionProgress + "  +" + e.missionBonus + "pt" + achievedMark;
+            _missionProgressText.color = e.missionAchieved ? MissionAchieved : MissionPending;
         }
+
+        // Mission completion celebration: detect transition incomplete → complete
+        // for THIS player and flash the mission bar with a snackbar-like message.
+        bool wasAchieved = e.playerColor == 1 ? _blackMissionAchieved : _whiteMissionAchieved;
+        if (e.missionAchieved && !wasAchieved)
+        {
+            if (e.playerColor == 1) _blackMissionAchieved = true;
+            else                    _whiteMissionAchieved = true;
+            // Hide AI mission completion (player shouldn't see opponent's secret).
+            if (!hideAsMystery)
+            {
+                if (_missionFlashCoroutine != null) StopCoroutine(_missionFlashCoroutine);
+                _missionFlashCoroutine = StartCoroutine(FlashMissionComplete(e.missionBonus));
+            }
+        }
+        else if (!e.missionAchieved)
+        {
+            // Mission can de-achieve (e.g. opponent re-flips relevant pieces).
+            if (e.playerColor == 1) _blackMissionAchieved = false;
+            else                    _whiteMissionAchieved = false;
+        }
+    }
+
+    IEnumerator FlashMissionComplete(int bonus)
+    {
+        // Save the mission name text, replace with celebration, restore later.
+        string savedName     = _missionNameText.text;
+        string savedProgress = _missionProgressText.text;
+        Color savedNameColor = _missionNameText.color;
+
+        _missionNameText.text     = Loc.Get("mission_complete");
+        _missionNameText.color    = MissionAchieved;
+        _missionProgressText.text = "+" + bonus + " pt";
+        _missionProgressText.color = MissionAchieved;
+
+        yield return new WaitForSeconds(1.6f);
+
+        _missionNameText.text     = savedName;
+        _missionNameText.color    = savedNameColor;
+        _missionProgressText.text = savedProgress;
+        _missionProgressText.color = MissionAchieved;
+        _missionFlashCoroutine = null;
     }
 
     // Pass is shown by recoloring + relabeling the turn indicator briefly
@@ -545,9 +610,18 @@ public partial class OthelloUIManager : MonoBehaviour
 
     void UpdateGameOverTexts(GameOverEvent e)
     {
-        string result = e.winner == 0 ? Loc.Get("draw")
-                      : e.winner == 1 ? Loc.Get("black_wins")
-                      :                 Loc.Get("white_wins");
+        // In vs-AI mode the player is always Black (player 1). Show
+        // perspective text ("You Win!" / "You Lose") so they don't have to
+        // remember which side they were. In vs-Human mode keep the literal
+        // "Black/White Wins!" since neither player is "you".
+        string result;
+        if (e.winner == 0)
+            result = Loc.Get("draw");
+        else if (_isVsAI)
+            result = e.winner == 1 ? Loc.Get("you_win") : Loc.Get("you_lose");
+        else
+            result = e.winner == 1 ? Loc.Get("black_wins") : Loc.Get("white_wins");
+
         _winnerText.text = result;
         if (_winnerShadowText != null)     _winnerShadowText.text = result;
         if (_neonWinShadowPink != null)    _neonWinShadowPink.text = result;

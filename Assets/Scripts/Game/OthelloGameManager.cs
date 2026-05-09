@@ -71,6 +71,7 @@ public class OthelloGameManager : MonoBehaviour
             missionLocKey    = currentMission.GetLocKey(),
             missionProgress  = currentMission.GetProgress(board, _currentPlayer),
             missionBonus     = currentMission.Bonus,
+            missionAchieved  = currentMission.Check(board, _currentPlayer),
             vsAI             = _vsAI,
         });
 
