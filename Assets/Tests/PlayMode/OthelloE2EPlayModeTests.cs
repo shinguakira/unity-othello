@@ -42,6 +42,12 @@ public class OthelloE2EPlayModeTests
         EventBus.Subscribe<PassTurnEvent>(OnPass);
         EventBus.Subscribe<GameOverEvent>(OnGameOver);
 
+        // Skip the reveal animation in tests so assertions don't have to
+        // wait several seconds for the per-stone count-up.
+        OthelloUIManager.RevealStonePlaceDelay = 0f;
+        OthelloUIManager.RevealPhaseGap        = 0f;
+        OthelloUIManager.RevealClearPause      = 0f;
+
         SceneManager.LoadScene("Game", LoadSceneMode.Single);
         yield return null;
         for (int i = 0; i < 8; i++) yield return null;

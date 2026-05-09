@@ -17,6 +17,7 @@ public class BoardView : MonoBehaviour
         EventBus.Subscribe<PiecesFlippedEvent>(OnPiecesFlipped);
         EventBus.Subscribe<TurnChangedEvent>(OnTurnChanged);
         EventBus.Subscribe<BoardResetEvent>(OnBoardReset);
+        EventBus.Subscribe<BoardClearAllEvent>(OnBoardClearAll);
     }
 
     void OnDisable()
@@ -25,6 +26,19 @@ public class BoardView : MonoBehaviour
         EventBus.Unsubscribe<PiecesFlippedEvent>(OnPiecesFlipped);
         EventBus.Unsubscribe<TurnChangedEvent>(OnTurnChanged);
         EventBus.Unsubscribe<BoardResetEvent>(OnBoardReset);
+        EventBus.Unsubscribe<BoardClearAllEvent>(OnBoardClearAll);
+    }
+
+    // Clear every cell and valid-move dot WITHOUT auto-placing the initial
+    // 4 stones. Used by the game-over reveal animation.
+    void OnBoardClearAll(BoardClearAllEvent e)
+    {
+        for (int r = 0; r < 8; r++)
+            for (int c = 0; c < 8; c++)
+            {
+                _cells[r, c].HidePiece();
+                _cells[r, c].SetValidDot(false);
+            }
     }
 
     void CreateBoard()

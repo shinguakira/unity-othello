@@ -665,8 +665,68 @@ public partial class OthelloUIManager : MonoBehaviour
         _lastWinner  = e.winner;
         _hasGameOver = true;
         _lastGameOver = e;
-        // Hide in-game UI (board + mission bar) so it doesn't bleed through
-        // the dimmed game-over overlay. Replay/Menu re-activate via mode select.
+
+        // Run the result-reveal animation FIRST: clear the board, then place
+        // each stone one-by-one while ticking the score counters from 0.
+        // The game-over panel itself appears once the reveal completes.
+        StartCoroutine(GameOverRevealSequence(e));
+    }
+
+    // Tunable from tests if needed — set short to skip the show.
+    public static float RevealStonePlaceDelay = 0.04f;
+    public static float RevealPhaseGap        = 0.40f;
+    public static float RevealClearPause      = 0.30f;
+
+    IEnumerator GameOverRevealSequence(GameOverEvent e)
+    {
+        // Keep the in-game UI visible during the reveal — the board and the
+        // top bar are part of the show. Mission bar stays as-is.
+        _gameOverPanel.SetActive(false);
+
+        // Reset score displays to 0 so the count-up reads cleanly.
+        _blackScoreText.text = "0";
+        _whiteScoreText.text = "0";
+        _turnIndicatorText.color = new Color(0.949f, 0.769f, 0.282f);
+        _turnIndicatorText.text  = "FINAL  RESULT";
+
+        // Clear the board completely.
+        EventBus.Publish(new BoardClearAllEvent());
+        if (RevealClearPause > 0f) yield return new WaitForSeconds(RevealClearPause);
+
+        var board = e.finalBoard;
+        if (board != null)
+        {
+            // Phase 1: place all black stones (row-by-row), tick black score.
+            int blackTicker = 0;
+            for (int r = 0; r < 8; r++)
+                for (int c = 0; c < 8; c++)
+                    if (board[r, c] == 1)
+                    {
+                        EventBus.Publish(new PiecePlacedEvent { row = r, col = c, playerColor = 1 });
+                        blackTicker++;
+                        _blackScoreText.text = blackTicker.ToString();
+                        if (RevealStonePlaceDelay > 0f)
+                            yield return new WaitForSeconds(RevealStonePlaceDelay);
+                    }
+            if (RevealPhaseGap > 0f) yield return new WaitForSeconds(RevealPhaseGap);
+
+            // Phase 2: place all white stones, tick white score.
+            int whiteTicker = 0;
+            for (int r = 0; r < 8; r++)
+                for (int c = 0; c < 8; c++)
+                    if (board[r, c] == 2)
+                    {
+                        EventBus.Publish(new PiecePlacedEvent { row = r, col = c, playerColor = 2 });
+                        whiteTicker++;
+                        _whiteScoreText.text = whiteTicker.ToString();
+                        if (RevealStonePlaceDelay > 0f)
+                            yield return new WaitForSeconds(RevealStonePlaceDelay);
+                    }
+            if (RevealPhaseGap > 0f) yield return new WaitForSeconds(RevealPhaseGap);
+        }
+
+        // Reveal complete: hide in-game UI under the game-over overlay and
+        // show the breakdown panel (tile bonus + mission reveal + buttons).
         _gamePanel.SetActive(false);
         _gameOverPanel.SetActive(true);
         _homeBtnGO.SetActive(false);

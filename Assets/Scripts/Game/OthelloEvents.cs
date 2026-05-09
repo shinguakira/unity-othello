@@ -53,9 +53,14 @@ public struct GameOverEvent
     public bool blackMissionAchieved;
     public bool whiteMissionAchieved;
     public int winner; // 0=draw, 1=black, 2=white  (based on total score)
+    public int[,] finalBoard; // full 8×8 board state at end of game (for reveal animation)
 }
 
 public struct BoardResetEvent { }
+// Like BoardResetEvent but does NOT auto-place the initial 4 pieces.
+// Used at game-over to clear the board before replaying the final state
+// stone-by-stone for the reveal animation.
+public struct BoardClearAllEvent { }
 
 public struct GameModeSelectedEvent
 {

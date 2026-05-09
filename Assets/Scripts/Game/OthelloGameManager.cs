@@ -125,6 +125,7 @@ public class OthelloGameManager : MonoBehaviour
             blackMissionAchieved = blackAchieved,
             whiteMissionAchieved = whiteAchieved,
             winner               = winner,
+            finalBoard           = board,
         });
 
         OthelloSaveSystem.SaveResult(winner, blackTotal, whiteTotal);
