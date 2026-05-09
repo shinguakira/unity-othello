@@ -394,4 +394,137 @@ public class OthelloE2EPlayModeTests
         // game. Just assert winner is one of the three valid values.
         Assert.That(_lastGameOver.winner, Is.InRange(0, 2));
     }
+
+    // ── Functional: winner perspective + mission complete ─────────────────
+
+    static Text WinnerTextOnPanel()
+    {
+        var go = FindByName("Winner");
+        return go == null ? null : go.GetComponentInChildren<Text>();
+    }
+
+    [UnityTest]
+    public IEnumerator VsAi_GameOver_ShowsYouPerspective()
+    {
+        yield return StartVsAi();
+        _gotGameOver = false;
+
+        // Fill the board entirely with black so winner = 1 (black) is forced
+        // and player (always black in vs-AI) wins.
+        var s = EmptyBoard();
+        for (int r = 0; r < 8; r++)
+            for (int c = 0; c < 8; c++)
+                s[r, c] = 1;
+        SetBoardState(s);
+
+        var beginTurn = typeof(OthelloGameManager).GetMethod("BeginTurn",
+            BindingFlags.NonPublic | BindingFlags.Instance);
+        beginTurn.Invoke(OthelloGameManager.Instance, null);
+
+        yield return null;
+        yield return null;
+
+        Assert.That(_gotGameOver, Is.True);
+        Assert.That(_lastGameOver.winner, Is.EqualTo(1));
+
+        var winText = WinnerTextOnPanel();
+        Assert.That(winText, Is.Not.Null);
+        Assert.That(winText.text, Is.EqualTo(Loc.Get("you_win")),
+            "vs-AI mode should show 'You Win!' (player perspective), not the literal 'Black Wins!'.");
+    }
+
+    [UnityTest]
+    public IEnumerator VsHuman_GameOver_ShowsLiteralColors()
+    {
+        yield return StartVsHuman();
+        _gotGameOver = false;
+
+        // White-dominant fill so winner = 2 is decided.
+        var s = EmptyBoard();
+        for (int r = 0; r < 8; r++)
+            for (int c = 0; c < 8; c++)
+                s[r, c] = 2;
+        SetBoardState(s);
+
+        var beginTurn = typeof(OthelloGameManager).GetMethod("BeginTurn",
+            BindingFlags.NonPublic | BindingFlags.Instance);
+        beginTurn.Invoke(OthelloGameManager.Instance, null);
+
+        yield return null;
+        yield return null;
+
+        Assert.That(_gotGameOver, Is.True);
+        Assert.That(_lastGameOver.winner, Is.EqualTo(2));
+
+        var winText = WinnerTextOnPanel();
+        Assert.That(winText, Is.Not.Null);
+        Assert.That(winText.text, Is.EqualTo(Loc.Get("white_wins")),
+            "vs-Human mode should keep the literal 'White Wins!' wording.");
+        Assert.That(winText.text, Is.Not.EqualTo(Loc.Get("you_win")));
+        Assert.That(winText.text, Is.Not.EqualTo(Loc.Get("you_lose")));
+    }
+
+    static TurnChangedEvent MakeTurn(int player, bool achieved, string progress = "1/2")
+    {
+        return new TurnChangedEvent
+        {
+            playerColor      = player,
+            validMoves       = new List<Vector2Int> { new Vector2Int(2, 3) },
+            blackCount       = 2,
+            whiteCount       = 2,
+            missionLocKey    = "mission_x",
+            missionProgress  = progress,
+            missionBonus     = 8,
+            missionAchieved  = achieved,
+            vsAI             = false,
+        };
+    }
+
+    [UnityTest]
+    public IEnumerator MissionAchieved_ShowsCelebrationBanner()
+    {
+        yield return StartVsHuman();
+
+        // Force the tracked state to "not achieved" first regardless of the
+        // randomly assigned mission, then trigger the false→true transition
+        // with a synthetic event.
+        EventBus.Publish(MakeTurn(player: 1, achieved: false));
+        yield return null;
+        EventBus.Publish(MakeTurn(player: 1, achieved: true, progress: "2/2"));
+
+        // Give the celebration handler a couple of frames to apply.
+        yield return null;
+        yield return null;
+
+        var nameGO = FindByName("MissionName");
+        var progGO = FindByName("MissionProgress");
+        Assert.That(nameGO, Is.Not.Null);
+        Assert.That(progGO, Is.Not.Null);
+
+        var nameText = nameGO.GetComponentInChildren<Text>();
+        var progText = progGO.GetComponentInChildren<Text>();
+
+        // During the 1.6s flash window the mission name shows the celebration.
+        Assert.That(nameText.text, Is.EqualTo(Loc.Get("mission_complete")),
+            "Mission name should temporarily show the 'Mission Complete!' banner.");
+        Assert.That(progText.text, Does.Contain("+8 pt"),
+            "Progress should show the bonus during the celebration flash.");
+    }
+
+    [UnityTest]
+    public IEnumerator MissionAchieved_PersistsCheckMarkAfterFlash()
+    {
+        yield return StartVsHuman();
+
+        EventBus.Publish(MakeTurn(player: 1, achieved: false));
+        yield return null;
+        EventBus.Publish(MakeTurn(player: 1, achieved: true, progress: "2/2"));
+
+        // Wait for the 1.6s flash to finish + a couple more frames.
+        yield return new WaitForSeconds(1.8f);
+
+        var progText = FindByName("MissionProgress").GetComponentInChildren<Text>();
+        Assert.That(progText.text, Does.Contain("✓"),
+            "After the flash, progress should keep a ✓ to mark the achieved state.");
+    }
 }
