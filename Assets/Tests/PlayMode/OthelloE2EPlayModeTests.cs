@@ -557,6 +557,94 @@ public class OthelloE2EPlayModeTests
             "Snackbar must auto-dismiss after its display window.");
     }
 
+    void CapturePngTo(string path)
+    {
+        var cam = Camera.main;
+        if (cam == null) return;
+
+        const int W = 1080, H = 1920;
+        var canvases = Object.FindObjectsOfType<Canvas>();
+        var saved = new (Canvas c, RenderMode m, Camera cam, float plane)[canvases.Length];
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            var c = canvases[i];
+            saved[i] = (c, c.renderMode, c.worldCamera, c.planeDistance);
+            if (c.renderMode == RenderMode.ScreenSpaceOverlay)
+            {
+                c.renderMode = RenderMode.ScreenSpaceCamera;
+                c.worldCamera = cam;
+                c.planeDistance = 1f;
+            }
+        }
+        Canvas.ForceUpdateCanvases();
+
+        var rt = new RenderTexture(W, H, 24);
+        var prevTarget = cam.targetTexture;
+        var prevActive = RenderTexture.active;
+        cam.targetTexture = rt;
+        cam.Render();
+        RenderTexture.active = rt;
+
+        var tex = new Texture2D(W, H, TextureFormat.RGB24, false);
+        tex.ReadPixels(new Rect(0, 0, W, H), 0, 0);
+        tex.Apply();
+        RenderTexture.active = prevActive;
+        cam.targetTexture = prevTarget;
+
+        for (int i = 0; i < saved.Length; i++)
+        {
+            if (saved[i].c == null) continue;
+            saved[i].c.renderMode = saved[i].m;
+            saved[i].c.worldCamera = saved[i].cam;
+            saved[i].c.planeDistance = saved[i].plane;
+        }
+
+        var bytes = tex.EncodeToPNG();
+        Object.DestroyImmediate(tex);
+        rt.Release();
+        Object.DestroyImmediate(rt);
+        File.WriteAllBytes(path, bytes);
+    }
+
+    [UnityTest]
+    public IEnumerator GameOverReveal_RecordFrameSequence()
+    {
+        // Enable real reveal timing so the recorded frames span the
+        // animation. Output goes to TestArtifacts/reveal_frames/ as a
+        // numbered PNG sequence — combined into a GIF by an external script.
+        OthelloUIManager.RevealClearPause      = 0.30f;
+        OthelloUIManager.RevealStonePlaceDelay = 0.04f;
+        OthelloUIManager.RevealPhaseGap        = 0.40f;
+
+        yield return StartVsHuman();
+
+        var s = EmptyBoard();
+        for (int r = 0; r < 8; r++)
+            for (int c = 0; c < 8; c++)
+                s[r, c] = (r + c) % 2 == 0 ? 1 : 2;
+        SetBoardState(s);
+
+        var beginTurn = typeof(OthelloGameManager).GetMethod("BeginTurn",
+            BindingFlags.NonPublic | BindingFlags.Instance);
+        beginTurn.Invoke(OthelloGameManager.Instance, null);
+
+        var framesDir = Path.Combine(ArtifactsDir, "reveal_frames");
+        Directory.CreateDirectory(framesDir);
+        // Wipe any old frames so the next combine doesn't pick up stale ones.
+        foreach (var f in Directory.GetFiles(framesDir, "frame_*.png"))
+            File.Delete(f);
+
+        // Capture ~30 frames at 150ms intervals (covers the full ~4s reveal
+        // plus 0.5s of the breakdown panel).
+        const int frameCount = 30;
+        for (int i = 0; i < frameCount; i++)
+        {
+            var path = Path.Combine(framesDir, $"frame_{i:D3}.png");
+            CapturePngTo(path);
+            yield return new WaitForSeconds(0.15f);
+        }
+    }
+
     [UnityTest]
     public IEnumerator GameOverReveal_MidAnimation_ShowsPartialRefill()
     {
