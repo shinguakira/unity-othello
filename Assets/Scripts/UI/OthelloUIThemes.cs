@@ -22,7 +22,7 @@ public partial class OthelloUIManager
 
     GameObject MakeSpriteRect(GameObject parent, string name, Sprite sprite, Color color,
         float xMin, float yMin, float xMax, float yMax,
-        Image.Type type = Image.Type.Simple)
+        Image.Type type = Image.Type.Simple, bool preserveAspect = false)
     {
         var go = MakePanel(parent, name);
         SetAnchor(go, xMin, yMin, xMax, yMax);
@@ -30,6 +30,29 @@ public partial class OthelloUIManager
         img.sprite = sprite;
         img.color = color;
         img.type = type;
+        img.preserveAspect = preserveAspect;
+        img.raycastTarget = false;
+        return go;
+    }
+
+    // Place a square sprite (circle, ring, seal) at a specific normalized
+    // center point with a fixed pixel size. Guarantees the sprite renders
+    // as a true square — anchor-stretching + preserveAspect is not always
+    // reliable with procedurally-generated sprites in older Unity versions.
+    GameObject MakeSquareSprite(GameObject parent, string name, Sprite sprite, Color color,
+        float cx, float cy, float pixelSize)
+    {
+        var go = MakePanel(parent, name);
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(cx, cy);
+        rt.anchorMax = new Vector2(cx, cy);
+        rt.pivot     = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(pixelSize, pixelSize);
+        rt.anchoredPosition = Vector2.zero;
+        var img = go.AddComponent<Image>();
+        img.sprite = sprite;
+        img.color = color;
+        img.preserveAspect = true;
         img.raycastTarget = false;
         return go;
     }
@@ -255,7 +278,7 @@ public partial class OthelloUIManager
         // Decorative seal in upper-right (pink ink stamp)
         MakeSpriteRect(panel, "Seal", ThemeSprites.Seal,
             new Color(RisoPink.r, RisoPink.g, RisoPink.b, 0.85f),
-            0.78f, 0.78f, 0.94f, 0.92f);
+            0.78f, 0.78f, 0.94f, 0.92f, Image.Type.Simple, true);
 
         // Dotted divider (we approximate with a row of dots)
         BuildDottedRule(panel, RisoInk, 0.08f, 0.605f, 0.92f, 0.610f, 36);
@@ -309,7 +332,8 @@ public partial class OthelloUIManager
             float t1 = t0 + 0.45f / dots;
             MakeSpriteRect(parent, "dot" + i, ThemeSprites.Circle, c,
                 Mathf.Lerp(xMin, xMax, t0), yMin,
-                Mathf.Lerp(xMin, xMax, t1), yMax);
+                Mathf.Lerp(xMin, xMax, t1), yMax,
+                Image.Type.Simple, true);
         }
     }
 
@@ -471,7 +495,7 @@ public partial class OthelloUIManager
         // 朱印 seal at top-right
         MakeSpriteRect(panel, "Seal", ThemeSprites.Seal,
             new Color(WabiSeal.r, WabiSeal.g, WabiSeal.b, 0.95f),
-            0.78f, 0.83f, 0.92f, 0.92f);
+            0.78f, 0.83f, 0.92f, 0.92f, Image.Type.Simple, true);
         MakeLabelAt(panel, "SealKanji", "印",
             38, WabiSeal, TextAnchor.MiddleCenter, 0.78f, 0.83f, 0.92f, 0.92f, FontStyle.Bold);
 
@@ -598,7 +622,7 @@ public partial class OthelloUIManager
         // Seal
         MakeSpriteRect(panel, "Seal", ThemeSprites.Seal,
             new Color(WabiSeal.r, WabiSeal.g, WabiSeal.b, 0.95f),
-            0.79f, 0.84f, 0.92f, 0.91f);
+            0.79f, 0.84f, 0.92f, 0.91f, Image.Type.Simple, true);
         MakeLabelAt(panel, "SealKanji", "終",
             34, WabiSeal, TextAnchor.MiddleCenter, 0.79f, 0.84f, 0.92f, 0.91f, FontStyle.Bold);
 
@@ -947,18 +971,20 @@ public partial class OthelloUIManager
         MakeRect(panel, "CardBorder", PGold,    0.05f, 0.06f, 0.95f, 0.94f);
         var card = MakeRect(panel, "Card", PCream, 0.058f, 0.067f, 0.942f, 0.933f);
 
-        // Title piece: huge black piece glyph (left), white piece (right),
-        // pulled into corners so the title fits cleanly between them.
-        MakeSpriteRect(card, "PieceBlack", ThemeSprites.Circle, PInk,
-            0.04f, 0.78f, 0.20f, 0.92f);
-        MakeSpriteRect(card, "PieceBlackHl", ThemeSprites.Circle,
+        // Title piece: huge black piece glyph (left), white piece (right).
+        // Use fixed-size square anchors so they render as actual circles, not
+        // ellipses (anchor-stretching makes them oval on portrait canvases).
+        const float pieceSize = 220f;
+        MakeSquareSprite(card, "PieceBlack",   ThemeSprites.Circle, PInk,
+            0.12f, 0.855f, pieceSize);
+        MakeSquareSprite(card, "PieceBlackHl", ThemeSprites.Circle,
             new Color(1f, 1f, 1f, 0.18f),
-            0.07f, 0.84f, 0.13f, 0.90f);
-        MakeSpriteRect(card, "PieceWhite", ThemeSprites.Circle, PWhitePc,
-            0.80f, 0.78f, 0.96f, 0.92f);
-        MakeSpriteRect(card, "PieceRing",  ThemeSprites.RingThin,
+            0.105f, 0.875f, pieceSize * 0.32f);
+        MakeSquareSprite(card, "PieceWhite",   ThemeSprites.Circle, PWhitePc,
+            0.88f, 0.855f, pieceSize);
+        MakeSquareSprite(card, "PieceRing",    ThemeSprites.RingThin,
             new Color(PInk.r, PInk.g, PInk.b, 0.5f),
-            0.80f, 0.78f, 0.96f, 0.92f);
+            0.88f, 0.855f, pieceSize);
 
         // Title between the two pieces — proper margin so glyphs don't clip
         MakeLabelAt(card, "Title", Loc.Get("title").ToUpperInvariant(),
@@ -1021,6 +1047,7 @@ public partial class OthelloUIManager
         var icBg = ic.AddComponent<Image>();
         icBg.color = new Color(text.r, text.g, text.b, 0.18f);
         icBg.sprite = ThemeSprites.Circle;
+        icBg.preserveAspect = true;
         MakeText(ic, icon, 56, text, TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
 
         // Mode name
@@ -1078,7 +1105,7 @@ public partial class OthelloUIManager
             new Color(PGold.r, PGold.g, PGold.b, 0.55f),
             0.30f, 0.84f, 0.70f, 0.99f);
         MakeSpriteRect(card, "TrophyDisc", ThemeSprites.Circle, PGold,
-            0.42f, 0.86f, 0.58f, 0.95f);
+            0.42f, 0.86f, 0.58f, 0.95f, Image.Type.Simple, true);
         MakeLabelAt(card, "TrophyKanji", "勝",
             58, PInk, TextAnchor.MiddleCenter, 0.42f, 0.86f, 0.58f, 0.95f, FontStyle.Bold);
 
@@ -1128,10 +1155,10 @@ public partial class OthelloUIManager
         // Piece glyph at left
         var p = MakeSpriteRect(row, "Piece", ThemeSprites.Circle,
             isBlack ? PWhitePc : PInk,
-            0.02f, 0.20f, 0.18f, 0.80f);
+            0.02f, 0.20f, 0.18f, 0.80f, Image.Type.Simple, true);
         MakeSpriteRect(p, "Hl", ThemeSprites.Circle,
             new Color(isBlack ? PWhitePc.r : 1f, isBlack ? PWhitePc.g : 1f, isBlack ? PWhitePc.b : 1f, 0.18f),
-            0.15f, 0.55f, 0.45f, 0.85f);
+            0.15f, 0.55f, 0.45f, 0.85f, Image.Type.Simple, true);
 
         // Label "BLACK" / "WHITE"
         MakeLabelAt(row, "Lbl", isBlack ? "BLACK" : "WHITE",
