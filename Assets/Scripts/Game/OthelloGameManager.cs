@@ -59,20 +59,25 @@ public class OthelloGameManager : MonoBehaviour
             return;
         }
 
-        var currentMission = _currentPlayer == 1 ? _blackMission : _whiteMission;
+        // In vs-AI mode the player is always Black (1), so the player's
+        // mission stays visible throughout — including during AI turns. In
+        // vs-Human mode each player sees their own mission on their turn.
+        int missionPlayer = _vsAI ? 1 : _currentPlayer;
+        var displayedMission = missionPlayer == 1 ? _blackMission : _whiteMission;
         var board = _board.GetBoardCopy();
 
         EventBus.Publish(new TurnChangedEvent
         {
-            playerColor      = _currentPlayer,
-            validMoves       = moves,
-            blackCount       = _board.GetScore(1),
-            whiteCount       = _board.GetScore(2),
-            missionLocKey    = currentMission.GetLocKey(),
-            missionProgress  = currentMission.GetProgress(board, _currentPlayer),
-            missionBonus     = currentMission.Bonus,
-            missionAchieved  = currentMission.Check(board, _currentPlayer),
-            vsAI             = _vsAI,
+            playerColor        = _currentPlayer,
+            validMoves         = moves,
+            blackCount         = _board.GetScore(1),
+            whiteCount         = _board.GetScore(2),
+            missionLocKey      = displayedMission.GetLocKey(),
+            missionProgress    = displayedMission.GetProgress(board, missionPlayer),
+            missionBonus       = displayedMission.Bonus,
+            missionAchieved    = displayedMission.Check(board, missionPlayer),
+            missionPlayerColor = missionPlayer,
+            vsAI               = _vsAI,
         });
 
         if (_vsAI && _currentPlayer == 2)

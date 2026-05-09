@@ -13,6 +13,8 @@ public partial class OthelloUIManager : MonoBehaviour
     GameObject _gamePanel;
     GameObject _gameOverPanel;
     GameObject _themePickerPanel;
+    GameObject _missionSnackbarPanel;
+    Text _missionSnackbarText;
 
     // Top-bar navigation (shown only during gameplay)
     GameObject _homeBtnGO;
@@ -147,6 +149,7 @@ public partial class OthelloUIManager : MonoBehaviour
         _gamePanel.SetActive(false);
 
         BuildMissionPanel(_gamePanel);
+        _missionSnackbarPanel = BuildMissionSnackbar(_gamePanel);
 
         // Settings button — universal, shown only on title screen
         _settingsBtnGO = BuildSettingsButton(safePanel);
@@ -500,62 +503,105 @@ public partial class OthelloUIManager : MonoBehaviour
                 ? Loc.Get("black_turn") : Loc.Get("white_turn");
         }
 
-        // Mission panel: show current player's mission; hide AI mission in PvAI mode
-        bool hideAsMystery = e.vsAI && e.playerColor == 2;
-        if (hideAsMystery)
-        {
-            _missionNameText.text     = "???";
-            _missionProgressText.text = "";
-            _missionProgressText.color = MissionPending;
-        }
-        else
-        {
-            _missionNameText.text     = Loc.Get(e.missionLocKey);
-            string achievedMark = e.missionAchieved ? "  ✓" : "";
-            _missionProgressText.text = e.missionProgress + "  +" + e.missionBonus + "pt" + achievedMark;
-            _missionProgressText.color = e.missionAchieved ? MissionAchieved : MissionPending;
-        }
+        // Mission bar shows whoever's mission the event reports (in vs-AI
+        // this is always the human player). Always show the actual mission
+        // — never replace with "???"  — so the player's status is visible
+        // continuously, including during the AI's turn.
+        _missionNameText.text     = Loc.Get(e.missionLocKey);
+        string achievedMark       = e.missionAchieved ? "  ✓" : "";
+        _missionProgressText.text = e.missionProgress + "  +" + e.missionBonus + "pt" + achievedMark;
+        _missionProgressText.color = e.missionAchieved ? MissionAchieved : MissionPending;
 
-        // Mission completion celebration: detect transition incomplete → complete
-        // for THIS player and flash the mission bar with a snackbar-like message.
-        bool wasAchieved = e.playerColor == 1 ? _blackMissionAchieved : _whiteMissionAchieved;
+        // Mission completion celebration: detect false → true transition for
+        // THE DISPLAYED mission's owner (missionPlayerColor). Show the
+        // dedicated mission-complete snackbar overlay.
+        bool wasAchieved = e.missionPlayerColor == 1
+            ? _blackMissionAchieved
+            : _whiteMissionAchieved;
         if (e.missionAchieved && !wasAchieved)
         {
-            if (e.playerColor == 1) _blackMissionAchieved = true;
-            else                    _whiteMissionAchieved = true;
-            // Hide AI mission completion (player shouldn't see opponent's secret).
-            if (!hideAsMystery)
-            {
-                if (_missionFlashCoroutine != null) StopCoroutine(_missionFlashCoroutine);
-                _missionFlashCoroutine = StartCoroutine(FlashMissionComplete(e.missionBonus));
-            }
+            if (e.missionPlayerColor == 1) _blackMissionAchieved = true;
+            else                           _whiteMissionAchieved = true;
+
+            if (_missionFlashCoroutine != null) StopCoroutine(_missionFlashCoroutine);
+            _missionFlashCoroutine = StartCoroutine(ShowMissionSnackbar(e.missionBonus));
         }
         else if (!e.missionAchieved)
         {
-            // Mission can de-achieve (e.g. opponent re-flips relevant pieces).
-            if (e.playerColor == 1) _blackMissionAchieved = false;
-            else                    _whiteMissionAchieved = false;
+            // Mission can de-achieve if opponent flips the relevant pieces.
+            if (e.missionPlayerColor == 1) _blackMissionAchieved = false;
+            else                           _whiteMissionAchieved = false;
         }
     }
 
-    IEnumerator FlashMissionComplete(int bonus)
+    GameObject BuildMissionSnackbar(GameObject parent)
     {
-        // Save the mission name text, replace with celebration, restore later.
-        string savedName     = _missionNameText.text;
-        string savedProgress = _missionProgressText.text;
-        Color savedNameColor = _missionNameText.color;
+        // Floats above the board area, just below the mission bar. Visible
+        // for ~2.0s when a mission flips from incomplete to complete.
+        var panel = MakePanel(parent, "MissionSnackbar");
+        var rt = panel.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.06f, 0.745f);
+        rt.anchorMax = new Vector2(0.94f, 0.825f);
+        rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
 
-        _missionNameText.text     = Loc.Get("mission_complete");
-        _missionNameText.color    = MissionAchieved;
-        _missionProgressText.text = "+" + bonus + " pt";
-        _missionProgressText.color = MissionAchieved;
+        var bg = panel.AddComponent<Image>();
+        bg.color = new Color(0.12f, 0.45f, 0.20f, 0.96f);
+        bg.raycastTarget = false;
 
-        yield return new WaitForSeconds(1.6f);
+        // Bright top + bottom borders for emphasis
+        var topB = MakePanel(panel, "TopBorder");
+        var trt = topB.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0f, 0.93f); trt.anchorMax = new Vector2(1f, 1f);
+        trt.offsetMin = Vector2.zero; trt.offsetMax = Vector2.zero;
+        topB.AddComponent<Image>().color = new Color(0.45f, 0.90f, 0.55f, 1f);
 
-        _missionNameText.text     = savedName;
-        _missionNameText.color    = savedNameColor;
-        _missionProgressText.text = savedProgress;
-        _missionProgressText.color = MissionAchieved;
+        var botB = MakePanel(panel, "BotBorder");
+        var brt = botB.GetComponent<RectTransform>();
+        brt.anchorMin = new Vector2(0f, 0f); brt.anchorMax = new Vector2(1f, 0.07f);
+        brt.offsetMin = Vector2.zero; brt.offsetMax = Vector2.zero;
+        botB.AddComponent<Image>().color = new Color(0.45f, 0.90f, 0.55f, 1f);
+
+        // Left accent bar
+        var accent = MakePanel(panel, "Accent");
+        var art = accent.GetComponent<RectTransform>();
+        art.anchorMin = new Vector2(0f, 0f); art.anchorMax = new Vector2(0.025f, 1f);
+        art.offsetMin = Vector2.zero; art.offsetMax = Vector2.zero;
+        accent.AddComponent<Image>().color = new Color(1f, 0.85f, 0.35f, 1f);
+
+        // ✓ icon (left)
+        var iconGO = MakePanel(panel, "Icon");
+        var irt = iconGO.GetComponent<RectTransform>();
+        irt.anchorMin = new Vector2(0.05f, 0.15f); irt.anchorMax = new Vector2(0.18f, 0.85f);
+        irt.offsetMin = Vector2.zero; irt.offsetMax = Vector2.zero;
+        var icon = MakeText(iconGO, "✓", 56, new Color(0.45f, 0.95f, 0.55f), TextAnchor.MiddleCenter);
+        icon.fontStyle = FontStyle.Bold;
+
+        // Title text
+        var titleGO = MakePanel(panel, "Title");
+        var ttt = titleGO.GetComponent<RectTransform>();
+        ttt.anchorMin = new Vector2(0.20f, 0.45f); ttt.anchorMax = new Vector2(0.78f, 0.95f);
+        ttt.offsetMin = Vector2.zero; ttt.offsetMax = Vector2.zero;
+        var title = MakeText(titleGO, Loc.Get("mission_complete"), 36, Color.white, TextAnchor.MiddleLeft, true);
+        title.fontStyle = FontStyle.Bold;
+        _localizedTexts.Add((title, () => Loc.Get("mission_complete")));
+
+        // Sub line (bonus)
+        var subGO = MakePanel(panel, "Sub");
+        var srt = subGO.GetComponent<RectTransform>();
+        srt.anchorMin = new Vector2(0.20f, 0.10f); srt.anchorMax = new Vector2(0.78f, 0.50f);
+        srt.offsetMin = Vector2.zero; srt.offsetMax = Vector2.zero;
+        _missionSnackbarText = MakeText(subGO, "", 26, new Color(0.85f, 1f, 0.85f), TextAnchor.MiddleLeft);
+
+        panel.SetActive(false);
+        return panel;
+    }
+
+    IEnumerator ShowMissionSnackbar(int bonus)
+    {
+        _missionSnackbarText.text = "+" + bonus + " pt   ·   keep it that way";
+        _missionSnackbarPanel.SetActive(true);
+        yield return new WaitForSeconds(2.0f);
+        _missionSnackbarPanel.SetActive(false);
         _missionFlashCoroutine = null;
     }
 

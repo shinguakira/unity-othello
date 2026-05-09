@@ -468,20 +468,21 @@ public class OthelloE2EPlayModeTests
     {
         return new TurnChangedEvent
         {
-            playerColor      = player,
-            validMoves       = new List<Vector2Int> { new Vector2Int(2, 3) },
-            blackCount       = 2,
-            whiteCount       = 2,
-            missionLocKey    = "mission_x",
-            missionProgress  = progress,
-            missionBonus     = 8,
-            missionAchieved  = achieved,
-            vsAI             = false,
+            playerColor        = player,
+            validMoves         = new List<Vector2Int> { new Vector2Int(2, 3) },
+            blackCount         = 2,
+            whiteCount         = 2,
+            missionLocKey      = "mission_x",
+            missionProgress    = progress,
+            missionBonus       = 8,
+            missionAchieved    = achieved,
+            missionPlayerColor = player,
+            vsAI               = false,
         };
     }
 
     [UnityTest]
-    public IEnumerator MissionAchieved_ShowsCelebrationBanner()
+    public IEnumerator MissionAchieved_ShowsSnackbarOverlay()
     {
         yield return StartVsHuman();
 
@@ -492,27 +493,45 @@ public class OthelloE2EPlayModeTests
         yield return null;
         EventBus.Publish(MakeTurn(player: 1, achieved: true, progress: "2/2"));
 
-        // Give the celebration handler a couple of frames to apply.
+        // Give the snackbar a couple of frames to activate.
         yield return null;
         yield return null;
 
-        var nameGO = FindByName("MissionName");
-        var progGO = FindByName("MissionProgress");
-        Assert.That(nameGO, Is.Not.Null);
-        Assert.That(progGO, Is.Not.Null);
+        var snackbar = FindByName("MissionSnackbar");
+        Assert.That(snackbar, Is.Not.Null);
+        Assert.That(snackbar.activeInHierarchy, Is.True,
+            "MissionSnackbar must be active when a mission flips from incomplete to complete.");
 
-        var nameText = nameGO.GetComponentInChildren<Text>();
-        var progText = progGO.GetComponentInChildren<Text>();
-
-        // During the 1.6s flash window the mission name shows the celebration.
-        Assert.That(nameText.text, Is.EqualTo(Loc.Get("mission_complete")),
-            "Mission name should temporarily show the 'Mission Complete!' banner.");
-        Assert.That(progText.text, Does.Contain("+8 pt"),
-            "Progress should show the bonus during the celebration flash.");
+        // Snackbar should contain "Mission Complete!" text and the bonus.
+        var allTexts = snackbar.GetComponentsInChildren<Text>();
+        var combined = string.Join(" ", allTexts.Select(t => t.text));
+        Assert.That(combined, Does.Contain(Loc.Get("mission_complete")));
+        Assert.That(combined, Does.Contain("+8 pt"));
     }
 
     [UnityTest]
-    public IEnumerator MissionAchieved_PersistsCheckMarkAfterFlash()
+    public IEnumerator MissionBar_KeepsCurrentStatusDuringSnackbar()
+    {
+        yield return StartVsHuman();
+
+        EventBus.Publish(MakeTurn(player: 1, achieved: false));
+        yield return null;
+        EventBus.Publish(MakeTurn(player: 1, achieved: true, progress: "2/2"));
+        yield return null;
+        yield return null;
+
+        // The mission bar's name text must KEEP showing the actual mission
+        // name during the snackbar — not be replaced with the celebration
+        // text and not show "???".
+        var nameText = FindByName("MissionName").GetComponentInChildren<Text>();
+        Assert.That(nameText.text, Is.EqualTo(Loc.Get("mission_x")),
+            "Mission bar should keep showing the actual mission name throughout, " +
+            "not be replaced by the celebration text.");
+        Assert.That(nameText.text, Is.Not.EqualTo("???"));
+    }
+
+    [UnityTest]
+    public IEnumerator MissionAchieved_PersistsCheckMarkAfterSnackbar()
     {
         yield return StartVsHuman();
 
@@ -520,11 +539,44 @@ public class OthelloE2EPlayModeTests
         yield return null;
         EventBus.Publish(MakeTurn(player: 1, achieved: true, progress: "2/2"));
 
-        // Wait for the 1.6s flash to finish + a couple more frames.
-        yield return new WaitForSeconds(1.8f);
+        // Wait for the 2.0s snackbar to dismiss + a couple more frames.
+        yield return new WaitForSeconds(2.2f);
 
         var progText = FindByName("MissionProgress").GetComponentInChildren<Text>();
         Assert.That(progText.text, Does.Contain("✓"),
-            "After the flash, progress should keep a ✓ to mark the achieved state.");
+            "After the snackbar dismisses, progress should keep a ✓ to mark the achieved state.");
+
+        var snackbar = FindByName("MissionSnackbar");
+        Assert.That(snackbar.activeInHierarchy, Is.False,
+            "Snackbar must auto-dismiss after its display window.");
+    }
+
+    [UnityTest]
+    public IEnumerator VsAi_AiTurn_DoesNotShowQuestionMarks()
+    {
+        yield return StartVsAi();
+
+        // After StartVsAi, an initial TurnChangedEvent fired for player 1
+        // (black, the human). Mission name should be a real mission name.
+        var nameText = FindByName("MissionName").GetComponentInChildren<Text>();
+        Assert.That(nameText.text, Is.Not.EqualTo("???"),
+            "vs-AI mission bar must always show the player's mission, never '???'.");
+
+        // Place to trigger AI turn.
+        Place(2, 3);
+
+        // Wait for AI to move and publish its TurnChangedEvent.
+        var deadline = Time.realtimeSinceStartup + 3f;
+        bool aiTurnFired = false;
+        while (Time.realtimeSinceStartup < deadline)
+        {
+            yield return null;
+            if (_lastTurn.playerColor == 2) { aiTurnFired = true; break; }
+        }
+        Assert.That(aiTurnFired, "AI's TurnChangedEvent should fire after human moves.");
+
+        // Mission name MUST still be the player's mission, not "???".
+        Assert.That(nameText.text, Is.Not.EqualTo("???"),
+            "Mission bar must keep showing the player's mission during the AI's turn.");
     }
 }

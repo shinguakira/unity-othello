@@ -26,12 +26,15 @@ public struct TurnChangedEvent
     public List<Vector2Int> validMoves;
     public int blackCount;
     public int whiteCount;
-    // Current player's mission (opponent's is always hidden as "???")
-    public string missionLocKey;   // Loc key → mission name
-    public string missionProgress; // e.g. "1/2"
-    public int missionBonus;       // e.g. 8
-    public bool missionAchieved;   // current state of THIS player's mission
-    public bool vsAI;              // true when playing against AI
+    // Mission shown in the UI: in vs-AI this is ALWAYS the human player's
+    // mission so it stays visible during the AI's turn. In vs-Human it's
+    // the current turn player's mission.
+    public string missionLocKey;
+    public string missionProgress;
+    public int missionBonus;
+    public bool missionAchieved;
+    public int missionPlayerColor; // who the displayed mission belongs to
+    public bool vsAI;
 }
 
 public struct PassTurnEvent
