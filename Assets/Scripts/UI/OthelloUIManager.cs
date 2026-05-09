@@ -693,37 +693,46 @@ public partial class OthelloUIManager : MonoBehaviour
         EventBus.Publish(new BoardClearAllEvent());
         if (RevealClearPause > 0f) yield return new WaitForSeconds(RevealClearPause);
 
-        var board = e.finalBoard;
-        if (board != null)
-        {
-            // Phase 1: place all black stones (row-by-row), tick black score.
-            int blackTicker = 0;
-            for (int r = 0; r < 8; r++)
-                for (int c = 0; c < 8; c++)
-                    if (board[r, c] == 1)
-                    {
-                        EventBus.Publish(new PiecePlacedEvent { row = r, col = c, playerColor = 1 });
-                        blackTicker++;
-                        _blackScoreText.text = blackTicker.ToString();
-                        if (RevealStonePlaceDelay > 0f)
-                            yield return new WaitForSeconds(RevealStonePlaceDelay);
-                    }
-            if (RevealPhaseGap > 0f) yield return new WaitForSeconds(RevealPhaseGap);
+        // Stones are NOT placed at their real game positions during the
+        // reveal. Instead, black stacks up from the bottom 4 rows (the
+        // player's side in vs-AI) and white stacks down from the top 4
+        // rows (the enemy's side). One black + one white are placed per
+        // tick so both stacks grow toward the middle simultaneously.
+        var blackPositions = new System.Collections.Generic.List<Vector2Int>(32);
+        for (int r = 0; r < 4; r++)
+            for (int c = 0; c < 8; c++)
+                blackPositions.Add(new Vector2Int(r, c));
 
-            // Phase 2: place all white stones, tick white score.
-            int whiteTicker = 0;
-            for (int r = 0; r < 8; r++)
-                for (int c = 0; c < 8; c++)
-                    if (board[r, c] == 2)
-                    {
-                        EventBus.Publish(new PiecePlacedEvent { row = r, col = c, playerColor = 2 });
-                        whiteTicker++;
-                        _whiteScoreText.text = whiteTicker.ToString();
-                        if (RevealStonePlaceDelay > 0f)
-                            yield return new WaitForSeconds(RevealStonePlaceDelay);
-                    }
-            if (RevealPhaseGap > 0f) yield return new WaitForSeconds(RevealPhaseGap);
+        var whitePositions = new System.Collections.Generic.List<Vector2Int>(32);
+        for (int r = 7; r >= 4; r--)
+            for (int c = 0; c < 8; c++)
+                whitePositions.Add(new Vector2Int(r, c));
+
+        int blackTotal = e.blackCount;
+        int whiteTotal = e.whiteCount;
+        int maxCount   = Mathf.Max(blackTotal, whiteTotal);
+        int blackTicker = 0, whiteTicker = 0;
+
+        for (int i = 0; i < maxCount; i++)
+        {
+            if (i < blackTotal && i < blackPositions.Count)
+            {
+                var p = blackPositions[i];
+                EventBus.Publish(new PiecePlacedEvent { row = p.x, col = p.y, playerColor = 1 });
+                blackTicker++;
+                _blackScoreText.text = blackTicker.ToString();
+            }
+            if (i < whiteTotal && i < whitePositions.Count)
+            {
+                var p = whitePositions[i];
+                EventBus.Publish(new PiecePlacedEvent { row = p.x, col = p.y, playerColor = 2 });
+                whiteTicker++;
+                _whiteScoreText.text = whiteTicker.ToString();
+            }
+            if (RevealStonePlaceDelay > 0f)
+                yield return new WaitForSeconds(RevealStonePlaceDelay);
         }
+        if (RevealPhaseGap > 0f) yield return new WaitForSeconds(RevealPhaseGap);
 
         // Reveal complete: hide in-game UI under the game-over overlay and
         // show the breakdown panel (tile bonus + mission reveal + buttons).
