@@ -9,21 +9,21 @@ public static class ThemeSprites
                   _diagStripe, _concentric, _piecePattern, _vignette,
                   _arc, _seal;
 
-    public static Sprite WhiteSquare => _whiteSquare ??= MakeSolid();
-    public static Sprite Circle => _circle ??= MakeCircle(128, 1f);
-    public static Sprite Ring => _ring ??= MakeRing(128, 0.42f, 1f);
-    public static Sprite RingThin => _ringThin ??= MakeRing(128, 0.84f, 1f);
-    public static Sprite RadialGlow => _radialGlow ??= MakeRadialGlow(256);
-    public static Sprite HalftoneDense => _halftoneDense ??= MakeHalftone(512, 24, 5.5f);
-    public static Sprite HalftoneSparse => _halftoneSparse ??= MakeHalftone(512, 16, 3.2f);
-    public static Sprite GridFine => _gridFine ??= MakeGrid(512, 32, 1);
-    public static Sprite Grid8 => _grid8 ??= MakeGrid(512, 64, 2);
-    public static Sprite DiagStripe => _diagStripe ??= MakeDiagonalStripes(256, 24);
-    public static Sprite Concentric => _concentric ??= MakeConcentric(256, 6);
-    public static Sprite PiecePattern => _piecePattern ??= MakePiecePattern(512, 64);
-    public static Sprite Vignette => _vignette ??= MakeVignette(512);
-    public static Sprite Arc => _arc ??= MakeArc(256);
-    public static Sprite Seal => _seal ??= MakeSealStamp(256);
+    public static Sprite WhiteSquare => _whiteSquare = _whiteSquare != null ? _whiteSquare : MakeSolid();
+    public static Sprite Circle => _circle = _circle != null ? _circle : MakeCircle(128, 1f);
+    public static Sprite Ring => _ring = _ring != null ? _ring : MakeRing(128, 0.42f, 1f);
+    public static Sprite RingThin => _ringThin = _ringThin != null ? _ringThin : MakeRing(128, 0.84f, 1f);
+    public static Sprite RadialGlow => _radialGlow = _radialGlow != null ? _radialGlow : MakeRadialGlow(256);
+    public static Sprite HalftoneDense => _halftoneDense = _halftoneDense != null ? _halftoneDense : MakeHalftone(512, 24, 5.5f);
+    public static Sprite HalftoneSparse => _halftoneSparse = _halftoneSparse != null ? _halftoneSparse : MakeHalftone(512, 16, 3.2f);
+    public static Sprite GridFine => _gridFine = _gridFine != null ? _gridFine : MakeGrid(512, 32, 1);
+    public static Sprite Grid8 => _grid8 = _grid8 != null ? _grid8 : MakeGrid(512, 64, 2);
+    public static Sprite DiagStripe => _diagStripe = _diagStripe != null ? _diagStripe : MakeDiagonalStripes(256, 24);
+    public static Sprite Concentric => _concentric = _concentric != null ? _concentric : MakeConcentric(256, 6);
+    public static Sprite PiecePattern => _piecePattern = _piecePattern != null ? _piecePattern : MakePiecePattern(512, 64);
+    public static Sprite Vignette => _vignette = _vignette != null ? _vignette : MakeVignette(512);
+    public static Sprite Arc => _arc = _arc != null ? _arc : MakeArc(256);
+    public static Sprite Seal => _seal = _seal != null ? _seal : MakeSealStamp(256);
 
     static Sprite WrapTexture(Texture2D tex, int border = 0)
     {

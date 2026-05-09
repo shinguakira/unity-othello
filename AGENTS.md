@@ -69,18 +69,25 @@ dotnet format whitespace --folder Assets\Scripts --verify-no-changes # CI / pre-
 cwd は `.editorconfig` のあるディレクトリ以下ならどこでもよい (整形対象ファイルから
 親方向に walk して `.editorconfig` を探すため)。npm における `package.json` 役。
 
-> **未使用コード検出 (IDE0005, IDE0051, IDE0059 …) は現在無効。**
-> 本来 `.editorconfig` で severity を上げて `dotnet format` の analyzer として
-> 動かす設計だが、それには sln モード (`dotnet format unity-othello.sln --severity warn`)
-> が必要で、その実行に必要な
-> `BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe`
-> が SDK 8.0.419 install に欠けている (.NET Framework ターゲットの Unity
-> csproj を解析できない)。.NET 8 SDK を再インストールして上記ファイルが
-> 存在することを確認したら sln モードに切り替えてよい。
+### Lint (Roslyn analyzer)
 
-> 検出できないもの (analyzer を有効にしても): 未使用の `Packages/manifest.json`
-> モジュール / 丸ごと未使用の `.cs` ファイル。これらは手動で確認するか、
-> 別途 `jb inspectcode` を導入する。
+`Assets/Plugins/Analyzers/Microsoft.Unity.Analyzers/` に Unity 用 Roslyn
+analyzer (`UNT*` ルール) が入っている。Unity Editor を開いて Console
+ウィンドウで警告を確認する。severity は `.editorconfig` の
+`dotnet_diagnostic.UNT*.severity` で調整。
+
+CLI から auto-fix を走らせるコマンド:
+
+```powershell
+dotnet format analyzers unity-othello.sln --severity warn --exclude-diagnostics IDE0051 IDE0052
+```
+
+- `analyzers` サブコマンド: Roslyn analyzer (`UNT*` など) の auto-fix のみ実行。
+  whitespace / style サブコマンドの cosmetic な変更はかからない。
+- `--exclude-diagnostics IDE0051 IDE0052`: 未使用 private メンバ判定。
+  Unity の `[MenuItem]` / `[ContextMenu]` / `[SerializeField]` をリフレクション
+  で呼ぶエントリを誤削除する。warning としては reportする ( `.editorconfig` で
+  severity = warning ) が、auto-fix からは除外。
 
 ### Compile / tests
 

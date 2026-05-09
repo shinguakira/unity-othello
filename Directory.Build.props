@@ -3,15 +3,9 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
   </ItemGroup>
 
-  <!--
-    Picked up automatically by `dotnet format` / `dotnet build` for every
-    csproj in the tree. Required so IDE0005 (unused using) and other IDE
-    style/lint rules fire from the CLI, not only inside the IDE.
-  -->
   <PropertyGroup>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- CS1591: missing XML doc comment — noisy for game code. -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 </Project>
