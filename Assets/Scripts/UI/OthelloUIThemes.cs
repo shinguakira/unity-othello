@@ -46,7 +46,7 @@ public partial class OthelloUIManager
         var rt = go.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(cx, cy);
         rt.anchorMax = new Vector2(cx, cy);
-        rt.pivot     = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
         rt.sizeDelta = new Vector2(pixelSize, pixelSize);
         rt.anchoredPosition = Vector2.zero;
         var img = go.AddComponent<Image>();
@@ -136,13 +136,13 @@ public partial class OthelloUIManager
         BuildThemeRow(card, ThemeKind.Pieces, "Pieces",
             "board-forward · green felt · cream + gold",
             0.05f, 0.62f, 0.95f, 0.78f);
-        BuildThemeRow(card, ThemeKind.Riso,   "Riso",
+        BuildThemeRow(card, ThemeKind.Riso, "Riso",
             "2-color risograph · halftone · pink misregistration",
             0.05f, 0.46f, 0.95f, 0.62f);
-        BuildThemeRow(card, ThemeKind.Wabi,   "Wabi",
+        BuildThemeRow(card, ThemeKind.Wabi, "Wabi",
             "Japanese minimal · vermillion seal · vertical kanji",
             0.05f, 0.30f, 0.95f, 0.46f);
-        BuildThemeRow(card, ThemeKind.Neon,   "Neon",
+        BuildThemeRow(card, ThemeKind.Neon, "Neon",
             "synthwave · pink + cyan glow · arcade",
             0.05f, 0.14f, 0.95f, 0.30f);
 
@@ -226,9 +226,9 @@ public partial class OthelloUIManager
     // ═══════════════════════════════════════════════════════════════════
 
     static readonly Color RisoPaper = new Color(0.961f, 0.949f, 0.910f);
-    static readonly Color RisoInk   = new Color(0.090f, 0.105f, 0.137f);
-    static readonly Color RisoPink  = new Color(0.949f, 0.290f, 0.580f);
-    static readonly Color RisoTeal  = new Color(0.169f, 0.557f, 0.541f);
+    static readonly Color RisoInk = new Color(0.090f, 0.105f, 0.137f);
+    static readonly Color RisoPink = new Color(0.949f, 0.290f, 0.580f);
+    static readonly Color RisoTeal = new Color(0.169f, 0.557f, 0.541f);
 
     GameObject BuildModeSelectPanel_Riso(GameObject parent)
     {
@@ -295,13 +295,13 @@ public partial class OthelloUIManager
             34, RisoPink, TextAnchor.MiddleLeft, 0.08f, 0.50f, 0.92f, 0.54f, FontStyle.Bold);
 
         // Two big mode buttons: ink-fill with pink offset shadow
-        BuildRisoButton(panel, "vs_ai",   0.08f, 0.36f, 0.92f, 0.48f, RisoInk, RisoPaper, RisoPink, () => StartGame(true));
-        BuildRisoButton(panel, "vs_human",0.08f, 0.22f, 0.92f, 0.34f, RisoInk, RisoPaper, RisoPink, () => StartGame(false));
+        BuildRisoButton(panel, "vs_ai", 0.08f, 0.36f, 0.92f, 0.48f, RisoInk, RisoPaper, RisoPink, () => StartGame(true));
+        BuildRisoButton(panel, "vs_human", 0.08f, 0.22f, 0.92f, 0.34f, RisoInk, RisoPaper, RisoPink, () => StartGame(false));
 
         BuildDottedRule(panel, RisoInk, 0.08f, 0.205f, 0.92f, 0.210f, 36);
 
         // Records (text link) + lang toggle
-        BuildRisoTextButton(panel, "records",   0.08f, 0.13f, 0.50f, 0.18f, ShowRecords, RisoInk);
+        BuildRisoTextButton(panel, "records", 0.08f, 0.13f, 0.50f, 0.18f, ShowRecords, RisoInk);
         BuildRisoTextButton(panel, "lang_mode", 0.55f, 0.13f, 0.92f, 0.18f, OnLangToggleClicked, RisoTeal);
 
         // Footer
@@ -451,7 +451,7 @@ public partial class OthelloUIManager
 
         // Buttons
         BuildRisoButton(panel, "play_again", 0.08f, 0.10f, 0.50f, 0.21f, RisoInk, RisoPaper, RisoPink, OnReplayClicked);
-        BuildRisoButton(panel, "menu",       0.52f, 0.10f, 0.92f, 0.21f, RisoTeal, RisoPaper, RisoPink, OnMainMenuClicked);
+        BuildRisoButton(panel, "menu", 0.52f, 0.10f, 0.92f, 0.21f, RisoTeal, RisoPaper, RisoPink, OnMainMenuClicked);
 
         MakeRect(panel, "BotRule", RisoInk, 0.08f, 0.07f, 0.92f, 0.072f);
         MakeLabelAt(panel, "Footer", "PRINTED ON RISO  ·  END OF MATCH  ·  THANK YOU",
@@ -472,11 +472,11 @@ public partial class OthelloUIManager
     // thirds, weighted bottom-left). 漢数字 numerals where possible.
     // ═══════════════════════════════════════════════════════════════════
 
-    static readonly Color WabiPaper  = new Color(0.969f, 0.957f, 0.929f);
-    static readonly Color WabiInk    = new Color(0.094f, 0.078f, 0.063f);
-    static readonly Color WabiSumi   = new Color(0.235f, 0.220f, 0.196f);
-    static readonly Color WabiSeal   = new Color(0.722f, 0.157f, 0.137f);
-    static readonly Color WabiLine   = new Color(0.792f, 0.749f, 0.690f);
+    static readonly Color WabiPaper = new Color(0.969f, 0.957f, 0.929f);
+    static readonly Color WabiInk = new Color(0.094f, 0.078f, 0.063f);
+    static readonly Color WabiSumi = new Color(0.235f, 0.220f, 0.196f);
+    static readonly Color WabiSeal = new Color(0.722f, 0.157f, 0.137f);
+    static readonly Color WabiLine = new Color(0.792f, 0.749f, 0.690f);
 
     GameObject BuildModeSelectPanel_Wabi(GameObject parent)
     {
@@ -512,11 +512,11 @@ public partial class OthelloUIManager
             32, WabiSumi, TextAnchor.MiddleLeft, 0.08f, 0.50f, 0.62f, 0.55f);
 
         // Mode rows on the right column past the vertical rule
-        BuildWabiRow(panel, "vs_ai",    0.65f, 0.66f, 0.92f, 0.78f, "一", () => StartGame(true));
+        BuildWabiRow(panel, "vs_ai", 0.65f, 0.66f, 0.92f, 0.78f, "一", () => StartGame(true));
         MakeRect(panel, "WabiRule1", WabiLine, 0.65f, 0.65f, 0.92f, 0.652f);
         BuildWabiRow(panel, "vs_human", 0.65f, 0.51f, 0.92f, 0.63f, "二", () => StartGame(false));
         MakeRect(panel, "WabiRule2", WabiLine, 0.65f, 0.50f, 0.92f, 0.502f);
-        BuildWabiRow(panel, "records",  0.65f, 0.36f, 0.92f, 0.48f, "三", ShowRecords);
+        BuildWabiRow(panel, "records", 0.65f, 0.36f, 0.92f, 0.48f, "三", ShowRecords);
 
         // Stats: vertical block beneath title
         MakeRect(panel, "StatsRule", WabiLine, 0.08f, 0.45f, 0.55f, 0.452f);
@@ -668,7 +668,7 @@ public partial class OthelloUIManager
         BuildWabiTextButton(panel, "play_again", 0.08f, 0.08f, 0.49f, 0.14f, OnReplayClicked);
         MakeLabelAt(panel, "MidDot", "・",
             48, WabiSeal, TextAnchor.MiddleCenter, 0.49f, 0.08f, 0.51f, 0.14f);
-        BuildWabiTextButton(panel, "menu",       0.51f, 0.08f, 0.92f, 0.14f, OnMainMenuClicked);
+        BuildWabiTextButton(panel, "menu", 0.51f, 0.08f, 0.92f, 0.14f, OnMainMenuClicked);
 
         MakeLabelAt(panel, "Footer", "─  令和 八年  ─",
             20, WabiLine, TextAnchor.MiddleCenter, 0.10f, 0.04f, 0.90f, 0.07f);
@@ -686,12 +686,12 @@ public partial class OthelloUIManager
     // Concentric ring decoration. Bold geometric.
     // ═══════════════════════════════════════════════════════════════════
 
-    static readonly Color NeonBg     = new Color(0.043f, 0.027f, 0.114f);
+    static readonly Color NeonBg = new Color(0.043f, 0.027f, 0.114f);
     static readonly Color NeonBgDeep = new Color(0.078f, 0.055f, 0.180f);
-    static readonly Color NeonPink   = new Color(1.000f, 0.235f, 0.706f);
-    static readonly Color NeonCyan   = new Color(0.235f, 0.961f, 1.000f);
-    static readonly Color NeonGold   = new Color(1.000f, 0.851f, 0.353f);
-    static readonly Color NeonText   = new Color(0.980f, 0.973f, 1.000f);
+    static readonly Color NeonPink = new Color(1.000f, 0.235f, 0.706f);
+    static readonly Color NeonCyan = new Color(0.235f, 0.961f, 1.000f);
+    static readonly Color NeonGold = new Color(1.000f, 0.851f, 0.353f);
+    static readonly Color NeonText = new Color(0.980f, 0.973f, 1.000f);
 
     GameObject BuildModeSelectPanel_Neon(GameObject parent)
     {
@@ -739,9 +739,9 @@ public partial class OthelloUIManager
             28, NeonText, TextAnchor.MiddleCenter, 0.20f, 0.55f, 0.80f, 0.60f, FontStyle.Bold);
 
         // Mode buttons — chrome neon
-        BuildNeonButton(panel, "vs_ai",    0.10f, 0.40f, 0.90f, 0.51f, NeonPink, () => StartGame(true));
+        BuildNeonButton(panel, "vs_ai", 0.10f, 0.40f, 0.90f, 0.51f, NeonPink, () => StartGame(true));
         BuildNeonButton(panel, "vs_human", 0.10f, 0.27f, 0.90f, 0.38f, NeonCyan, () => StartGame(false));
-        BuildNeonButton(panel, "records",  0.30f, 0.18f, 0.70f, 0.25f, NeonGold, ShowRecords);
+        BuildNeonButton(panel, "records", 0.30f, 0.18f, 0.70f, 0.25f, NeonGold, ShowRecords);
 
         // Lang toggle — small chip top right
         BuildNeonChip(panel, "lang_mode", 0.78f, 0.93f, 0.95f, 0.98f, NeonPink, OnLangToggleClicked);
@@ -761,7 +761,7 @@ public partial class OthelloUIManager
         {
             float t = (float)i / verticals;
             float bottomX = Mathf.Lerp(xMin - 0.2f, xMax + 0.2f, t);
-            float topX    = Mathf.Lerp(xMin + 0.42f, xMax - 0.42f, t);
+            float topX = Mathf.Lerp(xMin + 0.42f, xMax - 0.42f, t);
             BuildPerspectiveLine(parent, bottomX, yMin, topX, yMax, NeonPink);
         }
         // Horizontal receding stripes
@@ -927,7 +927,7 @@ public partial class OthelloUIManager
         _whiteMissionReveal.fontStyle = FontStyle.Bold;
 
         BuildNeonButton(panel, "play_again", 0.06f, 0.10f, 0.49f, 0.20f, NeonPink, OnReplayClicked);
-        BuildNeonButton(panel, "menu",       0.51f, 0.10f, 0.94f, 0.20f, NeonCyan, OnMainMenuClicked);
+        BuildNeonButton(panel, "menu", 0.51f, 0.10f, 0.94f, 0.20f, NeonCyan, OnMainMenuClicked);
 
         MakeLabelAt(panel, "Footer", "▸▸  CONTINUE  ?  ◂◂",
             24, NeonGold, TextAnchor.MiddleCenter, 0.10f, 0.04f, 0.90f, 0.08f, FontStyle.Bold);
@@ -946,13 +946,13 @@ public partial class OthelloUIManager
     // green felt palette with cream + gold accents. UI is the GAME.
     // ═══════════════════════════════════════════════════════════════════
 
-    static readonly Color PFelt    = new Color(0.043f, 0.157f, 0.090f);
-    static readonly Color PFeltLt  = new Color(0.090f, 0.220f, 0.137f);
-    static readonly Color PCream   = new Color(0.984f, 0.965f, 0.910f);
-    static readonly Color PInk     = new Color(0.043f, 0.043f, 0.043f);
-    static readonly Color PGold    = new Color(0.949f, 0.769f, 0.282f);
+    static readonly Color PFelt = new Color(0.043f, 0.157f, 0.090f);
+    static readonly Color PFeltLt = new Color(0.090f, 0.220f, 0.137f);
+    static readonly Color PCream = new Color(0.984f, 0.965f, 0.910f);
+    static readonly Color PInk = new Color(0.043f, 0.043f, 0.043f);
+    static readonly Color PGold = new Color(0.949f, 0.769f, 0.282f);
     static readonly Color PWhitePc = new Color(0.965f, 0.949f, 0.929f);
-    static readonly Color PRed     = new Color(0.706f, 0.157f, 0.137f);
+    static readonly Color PRed = new Color(0.706f, 0.157f, 0.137f);
 
     GameObject BuildModeSelectPanel_Pieces(GameObject parent)
     {
@@ -968,21 +968,21 @@ public partial class OthelloUIManager
             new Color(0f, 0f, 0f, 0.7f), -0.1f, -0.1f, 1.1f, 1.1f);
 
         // Cream "card" with gold border
-        MakeRect(panel, "CardBorder", PGold,    0.05f, 0.06f, 0.95f, 0.94f);
+        MakeRect(panel, "CardBorder", PGold, 0.05f, 0.06f, 0.95f, 0.94f);
         var card = MakeRect(panel, "Card", PCream, 0.058f, 0.067f, 0.942f, 0.933f);
 
         // Title piece: huge black piece glyph (left), white piece (right).
         // Use fixed-size square anchors so they render as actual circles, not
         // ellipses (anchor-stretching makes them oval on portrait canvases).
         const float pieceSize = 220f;
-        MakeSquareSprite(card, "PieceBlack",   ThemeSprites.Circle, PInk,
+        MakeSquareSprite(card, "PieceBlack", ThemeSprites.Circle, PInk,
             0.12f, 0.855f, pieceSize);
         MakeSquareSprite(card, "PieceBlackHl", ThemeSprites.Circle,
             new Color(1f, 1f, 1f, 0.18f),
             0.105f, 0.875f, pieceSize * 0.32f);
-        MakeSquareSprite(card, "PieceWhite",   ThemeSprites.Circle, PWhitePc,
+        MakeSquareSprite(card, "PieceWhite", ThemeSprites.Circle, PWhitePc,
             0.88f, 0.855f, pieceSize);
-        MakeSquareSprite(card, "PieceRing",    ThemeSprites.RingThin,
+        MakeSquareSprite(card, "PieceRing", ThemeSprites.RingThin,
             new Color(PInk.r, PInk.g, PInk.b, 0.5f),
             0.88f, 0.855f, pieceSize);
 
@@ -999,9 +999,9 @@ public partial class OthelloUIManager
         MakeRect(card, "Rule1", PGold, 0.10f, 0.673f, 0.90f, 0.677f);
 
         // Mode buttons styled as game cells (colored cell + a piece icon)
-        BuildPiecesCellButton(card, "vs_ai",   0.10f, 0.55f, 0.90f, 0.66f, "▶", "play against the engine", PInk,    PCream, () => StartGame(true));
-        BuildPiecesCellButton(card, "vs_human",0.10f, 0.43f, 0.90f, 0.54f, "○●", "two-player local",         PRed,    PCream, () => StartGame(false));
-        BuildPiecesCellButton(card, "records", 0.10f, 0.31f, 0.90f, 0.42f, "▦", "history of past matches",   PFelt,   PCream, ShowRecords);
+        BuildPiecesCellButton(card, "vs_ai", 0.10f, 0.55f, 0.90f, 0.66f, "▶", "play against the engine", PInk, PCream, () => StartGame(true));
+        BuildPiecesCellButton(card, "vs_human", 0.10f, 0.43f, 0.90f, 0.54f, "○●", "two-player local", PRed, PCream, () => StartGame(false));
+        BuildPiecesCellButton(card, "records", 0.10f, 0.31f, 0.90f, 0.42f, "▦", "history of past matches", PFelt, PCream, ShowRecords);
 
         // Stats strip
         MakeRect(card, "StatsBg", PFeltLt, 0.10f, 0.21f, 0.90f, 0.30f);
@@ -1097,7 +1097,7 @@ public partial class OthelloUIManager
         MakeSpriteRect(panel, "Vignette", ThemeSprites.Vignette,
             new Color(0f, 0f, 0f, 0.75f), -0.1f, -0.1f, 1.1f, 1.1f);
 
-        MakeRect(panel, "CardBorder", PGold,  0.04f, 0.05f, 0.96f, 0.95f);
+        MakeRect(panel, "CardBorder", PGold, 0.04f, 0.05f, 0.96f, 0.95f);
         var card = MakeRect(panel, "Card", PCream, 0.048f, 0.057f, 0.952f, 0.943f);
 
         // Decorative trophy disc
@@ -1117,7 +1117,7 @@ public partial class OthelloUIManager
         MakeRect(card, "Rule1", PGold, 0.10f, 0.695f, 0.90f, 0.698f);
 
         // Score panel — two cell-styled rows
-        BuildPiecesScoreRow(card, "BlackScoreRow", true,  0.08f, 0.58f, 0.92f, 0.69f, out _gameOverBlackText);
+        BuildPiecesScoreRow(card, "BlackScoreRow", true, 0.08f, 0.58f, 0.92f, 0.69f, out _gameOverBlackText);
         BuildPiecesScoreRow(card, "WhiteScoreRow", false, 0.08f, 0.46f, 0.92f, 0.57f, out _gameOverWhiteText);
 
         MakeRect(card, "Rule2", PGold, 0.10f, 0.435f, 0.90f, 0.438f);
@@ -1138,7 +1138,7 @@ public partial class OthelloUIManager
 
         // Buttons styled as cells
         BuildPiecesCellButton(card, "play_again", 0.08f, 0.10f, 0.49f, 0.19f, "↻", "another match", PRed, PCream, OnReplayClicked);
-        BuildPiecesCellButton(card, "menu",       0.51f, 0.10f, 0.92f, 0.19f, "⌂", "back to title",  PFelt, PCream, OnMainMenuClicked);
+        BuildPiecesCellButton(card, "menu", 0.51f, 0.10f, 0.92f, 0.19f, "⌂", "back to title", PFelt, PCream, OnMainMenuClicked);
 
         MakeRect(card, "Rule3", PGold, 0.10f, 0.082f, 0.90f, 0.085f);
         MakeLabelAt(card, "Footer", "OTHELLO  ·  THE  STRATEGIC  GAMBIT",

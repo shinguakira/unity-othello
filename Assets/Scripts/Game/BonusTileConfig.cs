@@ -26,9 +26,9 @@ public static class BonusTileConfig
     {
         switch (type)
         {
-            case BonusTileType.Gold:   return 5;
+            case BonusTileType.Gold: return 5;
             case BonusTileType.Poison: return -2;
-            default:                   return 0;
+            default: return 0;
         }
     }
 

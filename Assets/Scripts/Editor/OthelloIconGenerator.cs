@@ -32,13 +32,13 @@ public static class OthelloIconGenerator
         float cy = s / 2f;
 
         // ── Colors ──
-        var bgDark   = new Color(0.06f, 0.18f, 0.08f, 1f);  // outer border
-        var green1   = new Color(0.14f, 0.50f, 0.18f, 1f);  // light cell
-        var green2   = new Color(0.10f, 0.40f, 0.14f, 1f);  // dark cell
-        var lineCol  = new Color(0.04f, 0.22f, 0.07f, 1f);  // grid lines
-        var black    = new Color(0.08f, 0.08f, 0.08f, 1f);
-        var white    = new Color(0.93f, 0.93f, 0.93f, 1f);
-        var hlWhite  = new Color(1f, 1f, 1f, 0.30f);
+        var bgDark = new Color(0.06f, 0.18f, 0.08f, 1f);  // outer border
+        var green1 = new Color(0.14f, 0.50f, 0.18f, 1f);  // light cell
+        var green2 = new Color(0.10f, 0.40f, 0.14f, 1f);  // dark cell
+        var lineCol = new Color(0.04f, 0.22f, 0.07f, 1f);  // grid lines
+        var black = new Color(0.08f, 0.08f, 0.08f, 1f);
+        var white = new Color(0.93f, 0.93f, 0.93f, 1f);
+        var hlWhite = new Color(1f, 1f, 1f, 0.30f);
 
         float border = s * 0.06f;
         float boardSize = s - border * 2f;
@@ -92,10 +92,10 @@ public static class OthelloIconGenerator
         }
 
         // Draw 4 starting discs (center cells 3,3 / 3,4 / 4,3 / 4,4)
-        DrawDisc(tex, size, border, cellSize, 3, 3, white,  hlWhite);
-        DrawDisc(tex, size, border, cellSize, 4, 4, white,  hlWhite);
-        DrawDisc(tex, size, border, cellSize, 3, 4, black,  hlWhite);
-        DrawDisc(tex, size, border, cellSize, 4, 3, black,  hlWhite);
+        DrawDisc(tex, size, border, cellSize, 3, 3, white, hlWhite);
+        DrawDisc(tex, size, border, cellSize, 4, 4, white, hlWhite);
+        DrawDisc(tex, size, border, cellSize, 3, 4, black, hlWhite);
+        DrawDisc(tex, size, border, cellSize, 4, 3, black, hlWhite);
 
         tex.Apply();
         return tex;

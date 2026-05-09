@@ -52,26 +52,46 @@ unity-othello/
 
 ## Verifying Changes
 
-コード変更後は必ずコンパイルチェックを実行すること。完了報告前に必須。
+コード変更後は必ず **フォーマット → コンパイル → テスト** の順で実行すること。
+完了報告前に必須。Unity Editor は閉じてから走らせる (csproj/sln をロックするため)。
+
+### Format
+
+リポジトリルートで直接 `dotnet format` を呼ぶ。`unity.ps1` 経由ではない:
 
 ```powershell
-.\unity.ps1 compile
+# repo ルート (.editorconfig がある場所) にいること
+dotnet format whitespace --folder Assets\Scripts                     # 整形を適用
+dotnet format whitespace --folder Assets\Scripts --verify-no-changes # CI / pre-push: 差分があれば exit 1
 ```
 
-Editor を開いた状態では実行不可。先に Unity を閉じること:
+`.editorconfig` の `root = true` がここがルートだと示すマーカーで、これがあれば
+cwd は `.editorconfig` のあるディレクトリ以下ならどこでもよい (整形対象ファイルから
+親方向に walk して `.editorconfig` を探すため)。npm における `package.json` 役。
+
+> **未使用コード検出 (IDE0005, IDE0051, IDE0059 …) は現在無効。**
+> 本来 `.editorconfig` で severity を上げて `dotnet format` の analyzer として
+> 動かす設計だが、それには sln モード (`dotnet format unity-othello.sln --severity warn`)
+> が必要で、その実行に必要な
+> `BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe`
+> が SDK 8.0.419 install に欠けている (.NET Framework ターゲットの Unity
+> csproj を解析できない)。.NET 8 SDK を再インストールして上記ファイルが
+> 存在することを確認したら sln モードに切り替えてよい。
+
+> 検出できないもの (analyzer を有効にしても): 未使用の `Packages/manifest.json`
+> モジュール / 丸ごと未使用の `.cs` ファイル。これらは手動で確認するか、
+> 別途 `jb inspectcode` を導入する。
+
+### Compile / tests
 
 ```powershell
-Stop-Process -Name Unity -ErrorAction SilentlyContinue; .\unity.ps1 compile
+.\unity.ps1 compile               # コンパイルだけ
+Stop-Process -Name Unity -ErrorAction SilentlyContinue; .\unity.ps1 compile  # Unity を閉じてから
+
+.\unity.ps1 test                  # EditMode テスト
+.\unity.ps1 playmode              # PlayMode E2E (default テーマ)
+.\unity.ps1 playmode-themes       # 4 テーマ全部 → Tests/Design-Themes/screenshots/<Theme>/
 ```
-
-PlayMode E2E テスト (UI + ロジック横断) は CLI から実行可能:
-
-```powershell
-.\unity.ps1 playmode             # default テーマで実行
-.\unity.ps1 playmode-themes      # 4 テーマ全部、Tests/Design-Themes/screenshots/<Theme>/ に PNG 出力
-```
-
-EditMode テストは Unity Editor の **Window → General → Test Runner → EditMode** から実行。
 
 ## UI 変更後はスクショで確認・提示する
 

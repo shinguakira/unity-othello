@@ -41,12 +41,12 @@ public partial class OthelloUIManager : MonoBehaviour
     // Pass message uses the turn indicator slot, briefly flashed.
     Coroutine _passFlashCoroutine;
     static readonly Color TurnIndicatorNormal = new Color(0.75f, 0.75f, 0.75f);
-    static readonly Color TurnIndicatorPass   = new Color(1f, 0.78f, 0.30f);
+    static readonly Color TurnIndicatorPass = new Color(1f, 0.78f, 0.30f);
 
     // Mission completion celebration: flash the mission bar text + green tint
     Coroutine _missionFlashCoroutine;
     static readonly Color MissionAchieved = new Color(0.42f, 0.86f, 0.42f);
-    static readonly Color MissionPending  = new Color(1f, 0.85f, 0.30f);
+    static readonly Color MissionPending = new Color(1f, 0.85f, 0.30f);
     bool _blackMissionAchieved;
     bool _whiteMissionAchieved;
 
@@ -142,7 +142,7 @@ public partial class OthelloUIManager : MonoBehaviour
 
         BuildTopBar(safePanel);
         _modeSelectPanel = BuildModeSelectPanel(safePanel);
-        _gameOverPanel   = BuildGameOverPanel(safePanel);
+        _gameOverPanel = BuildGameOverPanel(safePanel);
 
         _gamePanel = MakePanel(safePanel, "GamePanel");
         SetStretch(_gamePanel.GetComponent<RectTransform>());
@@ -204,7 +204,7 @@ public partial class OthelloUIManager : MonoBehaviour
         var rt = bar.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(0f, 1f);
         rt.anchorMax = new Vector2(1f, 1f);
-        rt.pivot     = new Vector2(0.5f, 1f);
+        rt.pivot = new Vector2(0.5f, 1f);
         rt.offsetMin = new Vector2(0f, -TopBarHeight);
         rt.offsetMax = Vector2.zero;
 
@@ -328,10 +328,10 @@ public partial class OthelloUIManager : MonoBehaviour
     {
         return OthelloTheme.Active switch
         {
-            ThemeKind.Wabi   => BuildModeSelectPanel_Wabi(parent),
-            ThemeKind.Neon   => BuildModeSelectPanel_Neon(parent),
+            ThemeKind.Wabi => BuildModeSelectPanel_Wabi(parent),
+            ThemeKind.Neon => BuildModeSelectPanel_Neon(parent),
             ThemeKind.Pieces => BuildModeSelectPanel_Pieces(parent),
-            _                => BuildModeSelectPanel_Riso(parent),
+            _ => BuildModeSelectPanel_Riso(parent),
         };
     }
 
@@ -408,10 +408,10 @@ public partial class OthelloUIManager : MonoBehaviour
     {
         return OthelloTheme.Active switch
         {
-            ThemeKind.Wabi   => BuildGameOverPanel_Wabi(parent),
-            ThemeKind.Neon   => BuildGameOverPanel_Neon(parent),
+            ThemeKind.Wabi => BuildGameOverPanel_Wabi(parent),
+            ThemeKind.Neon => BuildGameOverPanel_Neon(parent),
             ThemeKind.Pieces => BuildGameOverPanel_Pieces(parent),
-            _                => BuildGameOverPanel_Riso(parent),
+            _ => BuildGameOverPanel_Riso(parent),
         };
     }
 
@@ -524,8 +524,8 @@ public partial class OthelloUIManager : MonoBehaviour
         // this is always the human player). Always show the actual mission
         // — never replace with "???"  — so the player's status is visible
         // continuously, including during the AI's turn.
-        _missionNameText.text     = Loc.Get(e.missionLocKey);
-        string achievedMark       = e.missionAchieved ? "  ✓" : "";
+        _missionNameText.text = Loc.Get(e.missionLocKey);
+        string achievedMark = e.missionAchieved ? "  ✓" : "";
         _missionProgressText.text = e.missionProgress + "  +" + e.missionBonus + "pt" + achievedMark;
         _missionProgressText.color = e.missionAchieved ? MissionAchieved : MissionPending;
 
@@ -538,7 +538,7 @@ public partial class OthelloUIManager : MonoBehaviour
         if (e.missionAchieved && !wasAchieved)
         {
             if (e.missionPlayerColor == 1) _blackMissionAchieved = true;
-            else                           _whiteMissionAchieved = true;
+            else _whiteMissionAchieved = true;
 
             if (_missionFlashCoroutine != null) StopCoroutine(_missionFlashCoroutine);
             _missionFlashCoroutine = StartCoroutine(ShowMissionSnackbar(e.missionBonus));
@@ -547,7 +547,7 @@ public partial class OthelloUIManager : MonoBehaviour
         {
             // Mission can de-achieve if opponent flips the relevant pieces.
             if (e.missionPlayerColor == 1) _blackMissionAchieved = false;
-            else                           _whiteMissionAchieved = false;
+            else _whiteMissionAchieved = false;
         }
     }
 
@@ -659,10 +659,10 @@ public partial class OthelloUIManager : MonoBehaviour
             _passFlashCoroutine = null;
         }
         _turnIndicatorText.color = TurnIndicatorNormal;
-        _turnIndicatorText.text  = _lastTurnPlayer == 1
+        _turnIndicatorText.text = _lastTurnPlayer == 1
             ? Loc.Get("black_turn") : Loc.Get("white_turn");
 
-        _lastWinner  = e.winner;
+        _lastWinner = e.winner;
         _hasGameOver = true;
         _lastGameOver = e;
 
@@ -674,8 +674,8 @@ public partial class OthelloUIManager : MonoBehaviour
 
     // Tunable from tests if needed — set short to skip the show.
     public static float RevealStonePlaceDelay = 0.04f;
-    public static float RevealPhaseGap        = 0.40f;
-    public static float RevealClearPause      = 0.30f;
+    public static float RevealPhaseGap = 0.40f;
+    public static float RevealClearPause = 0.30f;
 
     IEnumerator GameOverRevealSequence(GameOverEvent e)
     {
@@ -687,7 +687,7 @@ public partial class OthelloUIManager : MonoBehaviour
         _blackScoreText.text = "0";
         _whiteScoreText.text = "0";
         _turnIndicatorText.color = new Color(0.949f, 0.769f, 0.282f);
-        _turnIndicatorText.text  = "FINAL  RESULT";
+        _turnIndicatorText.text = "FINAL  RESULT";
 
         // Clear the board completely.
         EventBus.Publish(new BoardClearAllEvent());
@@ -710,7 +710,7 @@ public partial class OthelloUIManager : MonoBehaviour
 
         int blackTotal = e.blackCount;
         int whiteTotal = e.whiteCount;
-        int maxCount   = Mathf.Max(blackTotal, whiteTotal);
+        int maxCount = Mathf.Max(blackTotal, whiteTotal);
         int blackTicker = 0, whiteTicker = 0;
 
         for (int i = 0; i < maxCount; i++)
@@ -757,9 +757,9 @@ public partial class OthelloUIManager : MonoBehaviour
             result = e.winner == 1 ? Loc.Get("black_wins") : Loc.Get("white_wins");
 
         _winnerText.text = result;
-        if (_winnerShadowText != null)     _winnerShadowText.text = result;
-        if (_neonWinShadowPink != null)    _neonWinShadowPink.text = result;
-        if (_neonWinShadowCyan != null)    _neonWinShadowCyan.text = result;
+        if (_winnerShadowText != null) _winnerShadowText.text = result;
+        if (_neonWinShadowPink != null) _neonWinShadowPink.text = result;
+        if (_neonWinShadowCyan != null) _neonWinShadowCyan.text = result;
 
         int blackMissionPts = e.blackMissionAchieved ? e.blackMission.Bonus : 0;
         int whiteMissionPts = e.whiteMissionAchieved ? e.whiteMission.Bonus : 0;
@@ -827,7 +827,7 @@ public partial class OthelloUIManager : MonoBehaviour
         {
             _winnerText.text = _lastWinner == 0 ? Loc.Get("draw")
                              : _lastWinner == 1 ? Loc.Get("black_wins")
-                             :                    Loc.Get("white_wins");
+                             : Loc.Get("white_wins");
         }
 
         if (_hasGameOver)
@@ -871,7 +871,7 @@ public partial class OthelloUIManager : MonoBehaviour
     void ApplySafeArea(RectTransform rt)
     {
         Rect sa = Screen.safeArea;
-        rt.anchorMin = new Vector2(sa.x / Screen.width,          sa.y / Screen.height);
+        rt.anchorMin = new Vector2(sa.x / Screen.width, sa.y / Screen.height);
         rt.anchorMax = new Vector2((sa.x + sa.width) / Screen.width, (sa.y + sa.height) / Screen.height);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;

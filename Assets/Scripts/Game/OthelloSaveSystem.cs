@@ -3,9 +3,9 @@ using UnityEngine;
 public static class OthelloSaveSystem
 {
     const string KeyTotalGames = "OTH_TotalGames";
-    const string KeyBlackWins  = "OTH_BlackWins";
-    const string KeyWhiteWins  = "OTH_WhiteWins";
-    const string KeyHighScore  = "OTH_HighScore";
+    const string KeyBlackWins = "OTH_BlackWins";
+    const string KeyWhiteWins = "OTH_WhiteWins";
+    const string KeyHighScore = "OTH_HighScore";
     const string KeyLastWinner = "OTH_LastWinner";
 
     public static void SaveResult(int winner, int blackCount, int whiteCount)
@@ -23,8 +23,8 @@ public static class OthelloSaveSystem
     }
 
     public static int GetTotalGames() => PlayerPrefs.GetInt(KeyTotalGames, 0);
-    public static int GetBlackWins()  => PlayerPrefs.GetInt(KeyBlackWins,  0);
-    public static int GetWhiteWins()  => PlayerPrefs.GetInt(KeyWhiteWins,  0);
-    public static int GetHighScore()  => PlayerPrefs.GetInt(KeyHighScore,  0);
+    public static int GetBlackWins() => PlayerPrefs.GetInt(KeyBlackWins, 0);
+    public static int GetWhiteWins() => PlayerPrefs.GetInt(KeyWhiteWins, 0);
+    public static int GetHighScore() => PlayerPrefs.GetInt(KeyHighScore, 0);
     public static int GetLastWinner() => PlayerPrefs.GetInt(KeyLastWinner, 0);
 }

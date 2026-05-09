@@ -16,10 +16,10 @@ public class OthelloAudioManager : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
 
-        _placeSFX    = GeneratePlaceClip();
-        _flipSFX     = GenerateFlipClip();
+        _placeSFX = GeneratePlaceClip();
+        _flipSFX = GenerateFlipClip();
         _gameOverSFX = GenerateGameOverClip();
-        _passSFX     = GeneratePassClip();
+        _passSFX = GeneratePassClip();
     }
 
     void OnEnable()
@@ -38,10 +38,10 @@ public class OthelloAudioManager : MonoBehaviour
         EventBus.Unsubscribe<PassTurnEvent>(OnPassTurn);
     }
 
-    void OnPiecePlaced(PiecePlacedEvent e)   => Play(_placeSFX);
+    void OnPiecePlaced(PiecePlacedEvent e) => Play(_placeSFX);
     void OnPiecesFlipped(PiecesFlippedEvent e) => Play(_flipSFX);
-    void OnGameOver(GameOverEvent e)          => Play(_gameOverSFX);
-    void OnPassTurn(PassTurnEvent e)          => Play(_passSFX);
+    void OnGameOver(GameOverEvent e) => Play(_gameOverSFX);
+    void OnPassTurn(PassTurnEvent e) => Play(_passSFX);
 
     void Play(AudioClip clip)
     {

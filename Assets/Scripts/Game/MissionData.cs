@@ -43,7 +43,7 @@ public class MissionData
 
     public MissionData(MissionType type, int bonus)
     {
-        Type  = type;
+        Type = type;
         Bonus = bonus;
     }
 
@@ -60,12 +60,12 @@ public class MissionData
     {
         switch (Type)
         {
-            case MissionType.XSquares:      return CountAt(board, playerColor, XSquarePositions) >= 2;
-            case MissionType.FewPieces:     return CountAll(board, playerColor) <= 28;
+            case MissionType.XSquares: return CountAt(board, playerColor, XSquarePositions) >= 2;
+            case MissionType.FewPieces: return CountAll(board, playerColor) <= 28;
             case MissionType.CenterControl: return CountAt(board, playerColor, CenterPositions) >= 3;
             case MissionType.EdgeDominance: return CountEdges(board, playerColor) >= 12;
-            case MissionType.NoCorners:     return CountAt(board, playerColor, CornerPositions) == 0;
-            default:                        return false;
+            case MissionType.NoCorners: return CountAt(board, playerColor, CornerPositions) == 0;
+            default: return false;
         }
     }
 
@@ -74,12 +74,12 @@ public class MissionData
     {
         switch (Type)
         {
-            case MissionType.XSquares:      return CountAt(board, playerColor, XSquarePositions) + "/2";
-            case MissionType.FewPieces:     return CountAll(board, playerColor) + "/28";
+            case MissionType.XSquares: return CountAt(board, playerColor, XSquarePositions) + "/2";
+            case MissionType.FewPieces: return CountAll(board, playerColor) + "/28";
             case MissionType.CenterControl: return CountAt(board, playerColor, CenterPositions) + "/3";
             case MissionType.EdgeDominance: return CountEdges(board, playerColor) + "/12";
-            case MissionType.NoCorners:     return CountAt(board, playerColor, CornerPositions) + " corners";
-            default:                        return "";
+            case MissionType.NoCorners: return CountAt(board, playerColor, CornerPositions) + " corners";
+            default: return "";
         }
     }
 
@@ -87,12 +87,12 @@ public class MissionData
     {
         switch (Type)
         {
-            case MissionType.XSquares:      return "mission_x";
-            case MissionType.FewPieces:     return "mission_few";
+            case MissionType.XSquares: return "mission_x";
+            case MissionType.FewPieces: return "mission_few";
             case MissionType.CenterControl: return "mission_center";
             case MissionType.EdgeDominance: return "mission_edges";
-            case MissionType.NoCorners:     return "mission_no_corners";
-            default:                        return "";
+            case MissionType.NoCorners: return "mission_no_corners";
+            default: return "";
         }
     }
 

@@ -41,9 +41,9 @@ public class CellView : MonoBehaviour
             var dot = new GameObject("BonusDot");
             dot.transform.SetParent(transform, false);
             dot.transform.localPosition = new Vector3(0.37f, 0.37f, -0.01f);
-            dot.transform.localScale    = Vector3.one * 0.20f;
+            dot.transform.localScale = Vector3.one * 0.20f;
             var dotSR = dot.AddComponent<SpriteRenderer>();
-            dotSR.sprite       = _circleSprite;
+            dotSR.sprite = _circleSprite;
             dotSR.sortingOrder = 3;
             dotSR.color = bonusTile == BonusTileType.Gold
                 ? new Color(1.00f, 0.85f, 0.10f, 1f)

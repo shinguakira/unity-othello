@@ -68,16 +68,16 @@ public class OthelloGameManager : MonoBehaviour
 
         EventBus.Publish(new TurnChangedEvent
         {
-            playerColor        = _currentPlayer,
-            validMoves         = moves,
-            blackCount         = _board.GetScore(1),
-            whiteCount         = _board.GetScore(2),
-            missionLocKey      = displayedMission.GetLocKey(),
-            missionProgress    = displayedMission.GetProgress(board, missionPlayer),
-            missionBonus       = displayedMission.Bonus,
-            missionAchieved    = displayedMission.Check(board, missionPlayer),
+            playerColor = _currentPlayer,
+            validMoves = moves,
+            blackCount = _board.GetScore(1),
+            whiteCount = _board.GetScore(2),
+            missionLocKey = displayedMission.GetLocKey(),
+            missionProgress = displayedMission.GetProgress(board, missionPlayer),
+            missionBonus = displayedMission.Bonus,
+            missionAchieved = displayedMission.Check(board, missionPlayer),
             missionPlayerColor = missionPlayer,
-            vsAI               = _vsAI,
+            vsAI = _vsAI,
         });
 
         if (_vsAI && _currentPlayer == 2)
@@ -116,16 +116,16 @@ public class OthelloGameManager : MonoBehaviour
 
         EventBus.Publish(new GameOverEvent
         {
-            blackCount           = black,
-            whiteCount           = white,
-            blackTileBonus       = blackTileBonus,
-            whiteTileBonus       = whiteTileBonus,
-            blackMission         = _blackMission,
-            whiteMission         = _whiteMission,
+            blackCount = black,
+            whiteCount = white,
+            blackTileBonus = blackTileBonus,
+            whiteTileBonus = whiteTileBonus,
+            blackMission = _blackMission,
+            whiteMission = _whiteMission,
             blackMissionAchieved = blackAchieved,
             whiteMissionAchieved = whiteAchieved,
-            winner               = winner,
-            finalBoard           = board,
+            winner = winner,
+            finalBoard = board,
         });
 
         OthelloSaveSystem.SaveResult(winner, blackTotal, whiteTotal);

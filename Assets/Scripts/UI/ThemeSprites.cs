@@ -9,21 +9,21 @@ public static class ThemeSprites
                   _diagStripe, _concentric, _piecePattern, _vignette,
                   _arc, _seal;
 
-    public static Sprite WhiteSquare    => _whiteSquare    ??= MakeSolid();
-    public static Sprite Circle         => _circle         ??= MakeCircle(128, 1f);
-    public static Sprite Ring           => _ring           ??= MakeRing(128, 0.42f, 1f);
-    public static Sprite RingThin       => _ringThin       ??= MakeRing(128, 0.84f, 1f);
-    public static Sprite RadialGlow     => _radialGlow     ??= MakeRadialGlow(256);
-    public static Sprite HalftoneDense  => _halftoneDense  ??= MakeHalftone(512, 24, 5.5f);
+    public static Sprite WhiteSquare => _whiteSquare ??= MakeSolid();
+    public static Sprite Circle => _circle ??= MakeCircle(128, 1f);
+    public static Sprite Ring => _ring ??= MakeRing(128, 0.42f, 1f);
+    public static Sprite RingThin => _ringThin ??= MakeRing(128, 0.84f, 1f);
+    public static Sprite RadialGlow => _radialGlow ??= MakeRadialGlow(256);
+    public static Sprite HalftoneDense => _halftoneDense ??= MakeHalftone(512, 24, 5.5f);
     public static Sprite HalftoneSparse => _halftoneSparse ??= MakeHalftone(512, 16, 3.2f);
-    public static Sprite GridFine       => _gridFine       ??= MakeGrid(512, 32, 1);
-    public static Sprite Grid8          => _grid8          ??= MakeGrid(512, 64, 2);
-    public static Sprite DiagStripe     => _diagStripe     ??= MakeDiagonalStripes(256, 24);
-    public static Sprite Concentric     => _concentric     ??= MakeConcentric(256, 6);
-    public static Sprite PiecePattern   => _piecePattern   ??= MakePiecePattern(512, 64);
-    public static Sprite Vignette       => _vignette       ??= MakeVignette(512);
-    public static Sprite Arc            => _arc            ??= MakeArc(256);
-    public static Sprite Seal           => _seal           ??= MakeSealStamp(256);
+    public static Sprite GridFine => _gridFine ??= MakeGrid(512, 32, 1);
+    public static Sprite Grid8 => _grid8 ??= MakeGrid(512, 64, 2);
+    public static Sprite DiagStripe => _diagStripe ??= MakeDiagonalStripes(256, 24);
+    public static Sprite Concentric => _concentric ??= MakeConcentric(256, 6);
+    public static Sprite PiecePattern => _piecePattern ??= MakePiecePattern(512, 64);
+    public static Sprite Vignette => _vignette ??= MakeVignette(512);
+    public static Sprite Arc => _arc ??= MakeArc(256);
+    public static Sprite Seal => _seal ??= MakeSealStamp(256);
 
     static Sprite WrapTexture(Texture2D tex, int border = 0)
     {
@@ -169,7 +169,7 @@ public static class ThemeSprites
         var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
         int n = size / cell;
         bool[,] hasPiece = new bool[n, n];
-        bool[,] isWhite  = new bool[n, n];
+        bool[,] isWhite = new bool[n, n];
         // Sample pattern: scattered pieces, denser near center.
         var rng = new System.Random(42);
         for (int i = 0; i < n; i++)
@@ -255,7 +255,7 @@ public static class ThemeSprites
             {
                 float d = Mathf.Sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
                 float ringA = (d <= ro && d >= ri) ? 1f : 0f;
-                float dotA  = (d <= dot) ? 1f : 0f;
+                float dotA = (d <= dot) ? 1f : 0f;
                 float a = Mathf.Max(ringA, dotA);
                 tex.SetPixel(x, y, new Color(1, 1, 1, a));
             }
