@@ -455,6 +455,9 @@ public class OthelloUIManager : MonoBehaviour
         _lastWinner  = e.winner;
         _hasGameOver = true;
         _lastGameOver = e;
+        // Hide in-game UI (board + mission bar) so it doesn't bleed through
+        // the dimmed game-over overlay. Replay/Menu re-activate via mode select.
+        _gamePanel.SetActive(false);
         _gameOverPanel.SetActive(true);
         _homeBtnGO.SetActive(false);
         UpdateGameOverTexts(e);
