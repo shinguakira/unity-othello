@@ -238,14 +238,17 @@ public partial class OthelloUIManager : MonoBehaviour
         img.raycastTarget = false;
     }
 
-    // Mission bar at the bottom of the game panel
+    // Mission bar — sits just below the TopBar at the top of the play area
+    // so the board can occupy the lower half of the screen (thumb reach).
     // Shows the current player's mission + progress; opponent shown as "???"
     void BuildMissionPanel(GameObject parent)
     {
         var panel = MakePanel(parent, "MissionPanel");
         var rt = panel.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0f, 0f);
-        rt.anchorMax = new Vector2(1f, 0.10f);
+        // TopBar covers 1.000 - 160/1920 = 0.9167 to 1.000.
+        // Mission slots into 0.832 - 0.916 (~84px tall band right under it).
+        rt.anchorMin = new Vector2(0f, 0.832f);
+        rt.anchorMax = new Vector2(1f, 0.916f);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
 

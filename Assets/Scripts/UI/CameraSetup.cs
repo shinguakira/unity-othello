@@ -22,21 +22,27 @@ public class CameraSetup : MonoBehaviour
     {
         yield return null;
 
-        // cam.aspect is reliable after one frame (portrait orientation committed)
-        // Compute the orthSize that satisfies BOTH width and height constraints, take the larger.
-        const float topFrac = 160f / 1920f;   // TopBar fraction of screen
-        const float botFrac = 0.10f;           // MissionPanel fraction
-        float availH = (1f - topFrac - botFrac) * 0.90f; // 90% of available height for board
+        // Mobile-friendly layout: TopBar at top, Mission strip just below it,
+        // Board pushed toward the bottom for easy thumb reach. Bottom padding
+        // is small so the board sits low without clipping.
+        const float topFrac     = 160f / 1920f;  // TopBar (~0.0833)
+        const float missionFrac = 0.084f;        // Mission strip below TopBar
+        const float gapAbove    = 0.012f;        // breathing space above board
+        const float bottomPad   = 0.04f;         // small bottom padding
+        float boardAreaFrac = 1f - topFrac - missionFrac - gapAbove - bottomPad;
+        float availH = boardAreaFrac * 0.96f;    // 96% of board area used (light side padding)
 
         float boardHalf = 4.4f; // board + frame half-extent in world units
-        float orthForWidth  = boardHalf / (0.90f * cam.aspect); // fill 90% of screen width
-        float orthForHeight = boardHalf / availH;               // fill available vertical space
+        float orthForWidth  = boardHalf / (0.94f * cam.aspect); // fill 94% of screen width
+        float orthForHeight = boardHalf / availH;
         cam.orthographicSize = Mathf.Max(orthForWidth, orthForHeight);
 
-        // Center vertically in the space between TopBar and MissionPanel
-        float availCenter = (botFrac + (1f - topFrac)) / 2f; // fraction from screen bottom
+        // Center board within its allocated area (between bottomPad and
+        // bottomPad + boardAreaFrac). Result: board sits low on the screen
+        // for thumb-reach friendliness.
+        float boardCenterFrac = bottomPad + boardAreaFrac / 2f;
         float worldHeight = cam.orthographicSize * 2f;
-        float camY        = -(availCenter - 0.5f) * worldHeight;
+        float camY        = -(boardCenterFrac - 0.5f) * worldHeight;
         cam.transform.position = new Vector3(0f, camY, -10f);
     }
 }
