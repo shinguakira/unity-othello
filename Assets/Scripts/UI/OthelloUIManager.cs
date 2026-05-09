@@ -297,7 +297,9 @@ public class OthelloUIManager : MonoBehaviour
         var langBtn = MakeButton(panel, "lang_mode",
             new Vector2(0.70f, 0.91f), new Vector2(0.99f, 0.99f),
             new Color(0.12f, 0.26f, 0.52f), OnLangToggleClicked);
-        langBtn.GetComponentInChildren<Text>().fontSize = 32;
+        var langText = langBtn.GetComponentInChildren<Text>();
+        langText.fontSize = 32;
+        langText.text = Loc.Get("lang_btn");
         _localizedTexts.Add((langBtn.GetComponentInChildren<Text>(), () => Loc.Get("lang_btn")));
 
         return panel;

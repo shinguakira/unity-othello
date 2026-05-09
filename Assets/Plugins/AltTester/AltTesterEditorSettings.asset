@@ -1,0 +1,824 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8775a984e9d6279448cd0893c1c48334, type: 3}
+  m_Name: AltTesterEditorSettings
+  m_EditorClassIdentifier: 
+  appendToName: 1
+  AdbPath: /usr/local/bin/adb
+  IProxyPath: /usr/local/bin/iproxy
+  XcrunPath: /usr/bin/xcrun
+  MyTests:
+  - _selected: 0
+    _testName: E:/workspace/unity-othello/Library/ScriptAssemblies/OthelloTests.PlayMode.dll
+    _testAssembly: OthelloTests.PlayMode
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.TestAssembly
+    _parentName: 
+    _testCaseCount: 4
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: OthelloE2EPlayModeTests
+    _testAssembly: OthelloTests.PlayMode
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.TestFixture
+    _parentName: E:/workspace/unity-othello/Library/ScriptAssemblies/OthelloTests.PlayMode.dll
+    _testCaseCount: 4
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: OthelloE2EPlayModeTests.TitleScreen_ShowsLanguageButton
+    _testAssembly: OthelloTests.PlayMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: OthelloE2EPlayModeTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/PlayMode/OthelloE2EPlayModeTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: OthelloE2EPlayModeTests.TopBar_DoesNotContainLanguageButton
+    _testAssembly: OthelloTests.PlayMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: OthelloE2EPlayModeTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/PlayMode/OthelloE2EPlayModeTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: OthelloE2EPlayModeTests.VsAi_BoardPresentsValidMoveDots
+    _testAssembly: OthelloTests.PlayMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: OthelloE2EPlayModeTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/PlayMode/OthelloE2EPlayModeTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: OthelloE2EPlayModeTests.VsAi_StartsAndShowsHomeButton
+    _testAssembly: OthelloTests.PlayMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: OthelloE2EPlayModeTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/PlayMode/OthelloE2EPlayModeTests.cs
+    _testSelectedCount: 0
+  - _selected: 1
+    _testName: E:/workspace/unity-othello/Library/ScriptAssemblies/UnityEngine.TestRunner.dll
+    _testAssembly: UnityEngine.TestRunner
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.TestAssembly
+    _parentName: 
+    _testCaseCount: 0
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: E:/workspace/unity-othello/Library/ScriptAssemblies/OthelloTests.EditMode.dll
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.TestAssembly
+    _parentName: 
+    _testCaseCount: 41
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.TestFixture
+    _parentName: E:/workspace/unity-othello/Library/ScriptAssemblies/OthelloTests.EditMode.dll
+    _testCaseCount: 24
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.CalcBonusScore_EmptyBoard_Returns0
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.CalcBonusScore_OpponentPiecesNotCounted
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.CalcBonusScore_PieceOnGoldTile_Returns5
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.CalcBonusScore_PieceOnPoisonTile_ReturnsMinus2
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.CalcBonusScore_TwoGoldOnePoisonForSamePlayer_Returns8
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.Corners_HaveNoBonus
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.ParameterizedMethodSuite
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 4
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.Corners_HaveNoBonus(0,0)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.Corners_HaveNoBonus
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.Corners_HaveNoBonus(0,7)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.Corners_HaveNoBonus
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.Corners_HaveNoBonus(7,0)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.Corners_HaveNoBonus
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.Corners_HaveNoBonus(7,7)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.Corners_HaveNoBonus
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.EdgeMidpoints_ArePoison
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.ParameterizedMethodSuite
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 8
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.EdgeMidpoints_ArePoison(0,3)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.EdgeMidpoints_ArePoison
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.EdgeMidpoints_ArePoison(0,4)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.EdgeMidpoints_ArePoison
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.EdgeMidpoints_ArePoison(3,0)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.EdgeMidpoints_ArePoison
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.EdgeMidpoints_ArePoison(4,0)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.EdgeMidpoints_ArePoison
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.EdgeMidpoints_ArePoison(3,7)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.EdgeMidpoints_ArePoison
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.EdgeMidpoints_ArePoison(4,7)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.EdgeMidpoints_ArePoison
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.EdgeMidpoints_ArePoison(7,3)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.EdgeMidpoints_ArePoison
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.EdgeMidpoints_ArePoison(7,4)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.EdgeMidpoints_ArePoison
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.GetValue_Gold_Returns5
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.GetValue_None_Returns0
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.GetValue_Poison_ReturnsMinus2
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.XSquares_AreGold
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.ParameterizedMethodSuite
+    _parentName: BonusTileConfigTests
+    _testCaseCount: 4
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.XSquares_AreGold(1,1)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.XSquares_AreGold
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.XSquares_AreGold(1,6)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.XSquares_AreGold
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.XSquares_AreGold(6,1)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.XSquares_AreGold
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: BonusTileConfigTests.XSquares_AreGold(6,6)
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: BonusTileConfigTests.XSquares_AreGold
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/BonusTileConfigTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.TestFixture
+    _parentName: E:/workspace/unity-othello/Library/ScriptAssemblies/OthelloTests.EditMode.dll
+    _testCaseCount: 17
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.AssignRandom_BothHavePositiveBonus
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.AssignRandom_ReturnsTwoDifferentMissions
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.CenterControl_AllFour_Achieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.CenterControl_ThreeCenterSquares_Achieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.CenterControl_TwoSquares_NotAchieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.EdgeDominance_11Edges_NotAchieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.EdgeDominance_Exactly12Edges_Achieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.FewPieces_29Pieces_NotAchieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.FewPieces_Exactly28_Achieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.GetProgress_NoCorners_ShowsCornerCount
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.GetProgress_XSquares_ShowsCurrentOverGoal
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.NoCorners_EmptyBoard_Achieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.NoCorners_OneCorner_NotAchieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.NoCorners_ZeroCorners_Achieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.XSquares_OnlyOne_NotAchieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.XSquares_OpponentPiecesNotCounted
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 0
+    _testName: MissionDataTests.XSquares_TwoOrMore_Achieved
+    _testAssembly: OthelloTests.EditMode
+    _status: 0
+    _isSuite: 0
+    _type: NUnit.Framework.Internal.TestMethod
+    _parentName: MissionDataTests
+    _testCaseCount: 1
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: Assets/Tests/EditMode/MissionDataTests.cs
+    _testSelectedCount: 0
+  - _selected: 1
+    _testName: E:/workspace/unity-othello/Library/ScriptAssemblies/UnityEditor.TestRunner.dll
+    _testAssembly: UnityEditor.TestRunner
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.TestAssembly
+    _parentName: 
+    _testCaseCount: 0
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  - _selected: 1
+    _testName: E:/workspace/unity-othello/Library/ScriptAssemblies/AltTester.AltTesterUnitySDK.Editor.dll
+    _testAssembly: AltTester.AltTesterUnitySDK.Editor
+    _status: 0
+    _isSuite: 1
+    _type: NUnit.Framework.Internal.TestAssembly
+    _parentName: 
+    _testCaseCount: 0
+    _foldOut: 0
+    _testResultMessage: 
+    _testStackTrace: 
+    _testDuration: 0
+    path: 
+    _testSelectedCount: 0
+  Scenes:
+  - _toBeBuilt: 1
+    _path: Assets/Scenes/Game.unity
+    _buildIndex: 0
+  platform: 0
+  StandaloneTarget: 5
+  RanInEditor: 1
+  ScenePathDisplayed: 0
+  BuildLocationPath: 
+  createXMLReport: 0
+  xMLFilePath: 
+  AltServerPort: 13000
+  AltServerHost: 127.0.0.1
+  AppName: __default__
+  assemblyTestDisplayedIndex: 0
+  ResetConnectionData: 0
+  UID: 
+  UsingLocation: 0
+  HideGreenPopup: 0
+  KeepAUTSymbolDefined: 1
+  KeepAltTesterPrefabInScene: 0

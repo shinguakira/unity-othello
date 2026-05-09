@@ -47,6 +47,31 @@ switch ($Action) {
         }
     }
 
+    "playmode" {
+        Write-Host "Running PlayMode tests..."
+        $PlayLog     = "E:\tmp\unity-test-playmode.log"
+        $PlayResults = "E:\tmp\unity-test-playmode-results.xml"
+        & $Unity -batchmode -runTests -testPlatform PlayMode `
+            -projectPath $Project -testResults $PlayResults -logFile $PlayLog
+
+        if (-not (Test-Path $PlayResults)) {
+            Write-Host "ERROR: test results not found. Check $PlayLog"
+            exit 1
+        }
+
+        [xml]$xml = Get-Content $PlayResults
+        $total  = $xml.'test-run'.total
+        $passed = $xml.'test-run'.passed
+        $failed = $xml.'test-run'.failed
+        Write-Host "Total: $total  Passed: $passed  Failed: $failed"
+
+        if ([int]$failed -gt 0) {
+            Select-String -Path $PlayLog -Pattern "FAILED|error CS" -ErrorAction SilentlyContinue |
+                ForEach-Object { Write-Host $_.Line }
+            exit 1
+        }
+    }
+
     default {
         Write-Host "Opening Unity Editor..."
         Start-Process -FilePath $Unity -ArgumentList "-projectPath `"$Project`""
