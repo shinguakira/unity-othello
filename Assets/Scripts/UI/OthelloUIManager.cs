@@ -471,7 +471,14 @@ public partial class OthelloUIManager : MonoBehaviour
         _lastTurnPlayer = e.playerColor;
         _blackScoreText.text = e.blackCount.ToString();
         _whiteScoreText.text = e.whiteCount.ToString();
-        _turnIndicatorText.text = e.playerColor == 1 ? Loc.Get("black_turn") : Loc.Get("white_turn");
+        // Don't clobber the "X passes!" message if a pass flash is currently
+        // running — FlashPassMessage will restore the turn label using the
+        // updated _lastTurnPlayer value when its 1-second wait finishes.
+        if (_passFlashCoroutine == null)
+        {
+            _turnIndicatorText.text = e.playerColor == 1
+                ? Loc.Get("black_turn") : Loc.Get("white_turn");
+        }
 
         // Mission panel: show current player's mission; hide AI mission in PvAI mode
         bool hideAsMystery = e.vsAI && e.playerColor == 2;
@@ -489,22 +496,27 @@ public partial class OthelloUIManager : MonoBehaviour
 
     // Pass is shown by recoloring + relabeling the turn indicator briefly
     // (no separate toast popup that could overlap the game-over panel).
+    // Set text/color synchronously here so the message is visible even if
+    // a TurnChangedEvent fires immediately after pass; the OnTurnChanged
+    // guard skips the label update while _passFlashCoroutine is non-null.
     void OnPassTurn(PassTurnEvent e)
     {
         if (_passFlashCoroutine != null) StopCoroutine(_passFlashCoroutine);
-        _passFlashCoroutine = StartCoroutine(FlashPassMessage(e.playerColor));
-    }
 
-    IEnumerator FlashPassMessage(int passingPlayer)
-    {
-        string key = passingPlayer == 1 ? "black_passes" : "white_passes";
+        string key = e.playerColor == 1 ? "black_passes" : "white_passes";
         _turnIndicatorText.text = Loc.Get(key);
         _turnIndicatorText.color = TurnIndicatorPass;
+
+        _passFlashCoroutine = StartCoroutine(RestoreTurnIndicatorAfterDelay());
+    }
+
+    IEnumerator RestoreTurnIndicatorAfterDelay()
+    {
         yield return new WaitForSeconds(1.0f);
-        // Restore from whichever turn is current now (might have advanced).
         _turnIndicatorText.color = TurnIndicatorNormal;
         _turnIndicatorText.text = _lastTurnPlayer == 1
             ? Loc.Get("black_turn") : Loc.Get("white_turn");
+        _passFlashCoroutine = null;
     }
 
     void OnGameOver(GameOverEvent e)
