@@ -695,6 +695,113 @@ public class OthelloE2EPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator TopBar_HomeRowAboveScoreRow()
+    {
+        // Verify the new 2-row TopBar layout: HOME button sits above the
+        // score/turn row.
+        yield return StartVsHuman();
+
+        var home = FindByName("Btn_title_btn");
+        var blackScore = FindByName("BlackScore");
+        Assert.That(home, Is.Not.Null);
+        Assert.That(blackScore, Is.Not.Null);
+
+        var homeRT = home.GetComponent<RectTransform>();
+        var scoreRT = blackScore.GetComponent<RectTransform>();
+
+        Assert.That(homeRT.anchorMin.y, Is.GreaterThan(scoreRT.anchorMax.y),
+            "HOME button must be anchored above the score row in TopBar.");
+    }
+
+    [UnityTest]
+    public IEnumerator SettingsButton_VisibleOnTitle_HiddenInGame()
+    {
+        // On the title screen the settings chip is visible…
+        var settings = FindByName("Btn_settings");
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings.activeInHierarchy, Is.True,
+            "Settings chip should be visible on the title screen.");
+
+        // …and hidden once a game starts.
+        yield return StartVsHuman();
+        Assert.That(settings.activeInHierarchy, Is.False,
+            "Settings chip must be hidden during gameplay.");
+    }
+
+    [UnityTest]
+    public IEnumerator ThemePicker_OpensFromSettingsAndListsAllThemes()
+    {
+        var picker = FindByName("ThemePickerPanel");
+        Assert.That(picker, Is.Not.Null);
+        Assert.That(picker.activeInHierarchy, Is.False,
+            "Picker must be hidden until the user opens it.");
+
+        var settings = FindByName("Btn_settings");
+        settings.GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        yield return null;
+
+        Assert.That(picker.activeInHierarchy, Is.True,
+            "Picker should open when the settings chip is tapped.");
+
+        // All four theme options must be reachable as buttons.
+        foreach (var kind in new[] { "Pieces", "Riso", "Wabi", "Neon" })
+        {
+            var row = FindByName("Btn_theme_" + kind);
+            Assert.That(row, Is.Not.Null,
+                $"Theme picker is missing a row for {kind}.");
+            Assert.That(row.GetComponent<Button>(), Is.Not.Null,
+                $"Theme row {kind} must be clickable.");
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator GameOverReveal_PlacesBlackBottomWhiteTop()
+    {
+        // Capture every PiecePlacedEvent fired DURING the reveal sequence to
+        // verify the new layout: black stones in rows 0–3, white in rows 4–7.
+        yield return StartVsHuman();
+
+        var placements = new List<(int row, int col, int color)>();
+        System.Action<PiecePlacedEvent> handler = ev =>
+            placements.Add((ev.row, ev.col, ev.playerColor));
+        EventBus.Subscribe<PiecePlacedEvent>(handler);
+
+        try
+        {
+            // Set up a 32 + 32 checker state and force GameOver via BeginTurn.
+            var s = EmptyBoard();
+            for (int r = 0; r < 8; r++)
+                for (int c = 0; c < 8; c++)
+                    s[r, c] = (r + c) % 2 == 0 ? 1 : 2;
+            SetBoardState(s);
+
+            placements.Clear(); // ignore anything before the reveal
+
+            var beginTurn = typeof(OthelloGameManager).GetMethod("BeginTurn",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            beginTurn.Invoke(OthelloGameManager.Instance, null);
+
+            // Reveal delays are 0 in tests; a few frames is enough.
+            for (int i = 0; i < 6; i++) yield return null;
+        }
+        finally
+        {
+            EventBus.Unsubscribe<PiecePlacedEvent>(handler);
+        }
+
+        var blacks = placements.Where(p => p.color == 1).ToList();
+        var whites = placements.Where(p => p.color == 2).ToList();
+
+        Assert.That(blacks.Count, Is.EqualTo(32), "Should place all 32 black stones.");
+        Assert.That(whites.Count, Is.EqualTo(32), "Should place all 32 white stones.");
+        Assert.That(blacks.All(p => p.row >= 0 && p.row <= 3), Is.True,
+            "Black stones must all land in the bottom 4 rows (player's side).");
+        Assert.That(whites.All(p => p.row >= 4 && p.row <= 7), Is.True,
+            "White stones must all land in the top 4 rows (enemy's side).");
+    }
+
+    [UnityTest]
     public IEnumerator VsAi_AiTurn_DoesNotShowQuestionMarks()
     {
         yield return StartVsAi();
