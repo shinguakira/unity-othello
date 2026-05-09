@@ -47,7 +47,7 @@ public class BoardView : MonoBehaviour
                 go.transform.position = pos;
 
                 var cell = go.AddComponent<CellView>();
-                cell.Init(r, c);
+                cell.Init(r, c, BonusTileConfig.GetTileType(r, c));
                 _cells[r, c] = cell;
             }
         }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class CameraSetup : MonoBehaviour
@@ -13,14 +14,29 @@ public class CameraSetup : MonoBehaviour
         cam.orthographic = true;
         cam.backgroundColor = new Color(0.04f, 0.06f, 0.04f);
 
-        // Fit the 8-unit board to screen width with ~10% padding on sides
-        // Board = 8 world units wide; we want visible width = 8 / 0.9 ≈ 8.89 units
-        float aspect = (float)Screen.width / Screen.height;
-        float visibleWidth = 8f / 0.9f;
-        cam.orthographicSize = visibleWidth / (2f * aspect);
+        StartCoroutine(ApplyLayout(cam));
+    }
 
-        // Shift camera down a bit to leave room for the top UI bar (≈7% of world height)
+    // Wait one frame so portrait orientation is committed before reading screen dimensions
+    IEnumerator ApplyLayout(Camera cam)
+    {
+        yield return null;
+
+        // cam.aspect is reliable after one frame (portrait orientation committed)
+        // Compute the orthSize that satisfies BOTH width and height constraints, take the larger.
+        const float topFrac = 160f / 1920f;   // TopBar fraction of screen
+        const float botFrac = 0.10f;           // MissionPanel fraction
+        float availH = (1f - topFrac - botFrac) * 0.90f; // 90% of available height for board
+
+        float boardHalf = 4.4f; // board + frame half-extent in world units
+        float orthForWidth  = boardHalf / (0.90f * cam.aspect); // fill 90% of screen width
+        float orthForHeight = boardHalf / availH;               // fill available vertical space
+        cam.orthographicSize = Mathf.Max(orthForWidth, orthForHeight);
+
+        // Center vertically in the space between TopBar and MissionPanel
+        float availCenter = (botFrac + (1f - topFrac)) / 2f; // fraction from screen bottom
         float worldHeight = cam.orthographicSize * 2f;
-        cam.transform.position = new Vector3(0f, -worldHeight * 0.07f, -10f);
+        float camY        = -(availCenter - 0.5f) * worldHeight;
+        cam.transform.position = new Vector3(0f, camY, -10f);
     }
 }

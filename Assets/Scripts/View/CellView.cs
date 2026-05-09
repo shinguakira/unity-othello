@@ -15,20 +15,40 @@ public class CellView : MonoBehaviour
     static Sprite _circleSprite;
     static Sprite _ringSprite;
 
-    public void Init(int row, int col)
+    public void Init(int row, int col, BonusTileType bonusTile = BonusTileType.None)
     {
         _row = row;
         _col = col;
 
         EnsureSharedSprites();
 
-        // Checkerboard background — two subtle shades of green
+        // Background — bonus tiles override the checkerboard green
         _bgRenderer = gameObject.AddComponent<SpriteRenderer>();
         _bgRenderer.sprite = _whiteSquareSprite;
-        _bgRenderer.color = (row + col) % 2 == 0
-            ? new Color(0.14f, 0.50f, 0.18f)
-            : new Color(0.12f, 0.44f, 0.16f);
+        if (bonusTile == BonusTileType.Gold)
+            _bgRenderer.color = new Color(0.55f, 0.40f, 0.05f);
+        else if (bonusTile == BonusTileType.Poison)
+            _bgRenderer.color = new Color(0.40f, 0.07f, 0.07f);
+        else
+            _bgRenderer.color = (row + col) % 2 == 0
+                ? new Color(0.14f, 0.50f, 0.18f)
+                : new Color(0.12f, 0.44f, 0.16f);
         _bgRenderer.sortingOrder = 0;
+
+        // Small corner dot: stays visible even when a piece occupies the cell
+        if (bonusTile != BonusTileType.None)
+        {
+            var dot = new GameObject("BonusDot");
+            dot.transform.SetParent(transform, false);
+            dot.transform.localPosition = new Vector3(0.37f, 0.37f, -0.01f);
+            dot.transform.localScale    = Vector3.one * 0.20f;
+            var dotSR = dot.AddComponent<SpriteRenderer>();
+            dotSR.sprite       = _circleSprite;
+            dotSR.sortingOrder = 3;
+            dotSR.color = bonusTile == BonusTileType.Gold
+                ? new Color(1.00f, 0.85f, 0.10f, 1f)
+                : new Color(0.90f, 0.15f, 0.15f, 1f);
+        }
 
         // Collider for touch — must be 3D; OnMouseDown uses Physics.Raycast, not Physics2D
         var col3d = gameObject.AddComponent<BoxCollider>();
@@ -59,10 +79,10 @@ public class CellView : MonoBehaviour
         _validDotGO = new GameObject("ValidDot");
         _validDotGO.transform.SetParent(transform, false);
         _validDotGO.transform.localScale = Vector3.one * 0.42f;
-        var dotSR = _validDotGO.AddComponent<SpriteRenderer>();
-        dotSR.sprite = _ringSprite;
-        dotSR.color = new Color(0f, 0f, 0f, 0.55f);
-        dotSR.sortingOrder = 1;
+        var ringSR = _validDotGO.AddComponent<SpriteRenderer>();
+        ringSR.sprite = _ringSprite;
+        ringSR.color = new Color(0f, 0f, 0f, 0.55f);
+        ringSR.sortingOrder = 1;
         _validDotGO.SetActive(false);
     }
 
