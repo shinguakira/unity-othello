@@ -100,17 +100,22 @@ public class BoardView : MonoBehaviour
         var lineGO = new GameObject("GridLines");
         lineGO.transform.SetParent(transform, false);
 
+        // Resolve the shader once and share a single Material across all 18 lines.
+        var sharedMaterial = new Material(Shader.Find("Sprites/Default"));
+
         for (int i = 0; i <= 8; i++)
         {
             float pos = BoardOrigin - CellSize * 0.5f + i * CellSize;
-            CreateLine(lineGO, new Vector3(pos, BoardOrigin - CellSize * 0.5f, 0f),
+            CreateLine(lineGO, sharedMaterial,
+                               new Vector3(pos, BoardOrigin - CellSize * 0.5f, 0f),
                                new Vector3(pos, BoardOrigin + 7.5f * CellSize, 0f));
-            CreateLine(lineGO, new Vector3(BoardOrigin - CellSize * 0.5f, pos, 0f),
+            CreateLine(lineGO, sharedMaterial,
+                               new Vector3(BoardOrigin - CellSize * 0.5f, pos, 0f),
                                new Vector3(BoardOrigin + 7.5f * CellSize, pos, 0f));
         }
     }
 
-    void CreateLine(GameObject parent, Vector3 start, Vector3 end)
+    void CreateLine(GameObject parent, Material sharedMaterial, Vector3 start, Vector3 end)
     {
         var go = new GameObject("Line");
         go.transform.SetParent(parent.transform, false);
@@ -120,7 +125,7 @@ public class BoardView : MonoBehaviour
         lr.SetPosition(1, end);
         lr.startWidth = 0.025f;
         lr.endWidth = 0.025f;
-        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.sharedMaterial = sharedMaterial;
         lr.startColor = new Color(0.04f, 0.22f, 0.07f, 1f);
         lr.endColor = new Color(0.04f, 0.22f, 0.07f, 1f);
         lr.sortingOrder = 2;

@@ -16,31 +16,31 @@ using System.Collections.Generic;
 /// </summary>
 public static class EventBus
 {
-    private static readonly Dictionary<Type, List<Delegate>> handlers =
-        new Dictionary<Type, List<Delegate>>();
+    private static readonly Dictionary<Type, Delegate> handlers =
+        new Dictionary<Type, Delegate>();
 
     public static void Subscribe<T>(Action<T> handler)
     {
         Type type = typeof(T);
-        if (!handlers.ContainsKey(type))
-            handlers[type] = new List<Delegate>();
-        handlers[type].Add(handler);
+        handlers.TryGetValue(type, out var existing);
+        handlers[type] = Delegate.Combine(existing, handler);
     }
 
     public static void Unsubscribe<T>(Action<T> handler)
     {
         Type type = typeof(T);
-        if (handlers.ContainsKey(type))
-            handlers[type].Remove(handler);
+        if (!handlers.TryGetValue(type, out var existing)) return;
+        var remaining = Delegate.Remove(existing, handler);
+        if (remaining == null) handlers.Remove(type);
+        else handlers[type] = remaining;
     }
 
     public static void Publish<T>(T eventData)
     {
-        Type type = typeof(T);
-        if (!handlers.TryGetValue(type, out var list)) return;
-        // Iterate over a copy so handlers can unsubscribe during dispatch
-        foreach (Delegate d in list.ToArray())
-            ((Action<T>)d)?.Invoke(eventData);
+        // MulticastDelegate's invocation list is frozen at invoke time, so
+        // handlers may safely unsubscribe during dispatch without copying.
+        if (handlers.TryGetValue(typeof(T), out var combined))
+            ((Action<T>)combined)?.Invoke(eventData);
     }
 
     /// <summary>Call on scene unload to remove stale subscribers.</summary>

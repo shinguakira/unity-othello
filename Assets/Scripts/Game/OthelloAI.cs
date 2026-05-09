@@ -22,27 +22,6 @@ public static class OthelloAI
         { 25, -5,  5,  3,  3,  5, -5, 25 }
     };
 
-    public static Vector2Int ChooseMove(OthelloBoard board, int playerColor)
-    {
-        var moves = board.GetValidMoves(playerColor);
-        if (moves.Count == 0) return new Vector2Int(-1, -1);
-
-        var boardCopy = board.GetBoardCopy();
-        Vector2Int best = moves[0];
-        int bestScore = int.MinValue;
-
-        foreach (var move in moves)
-        {
-            int score = ScoreMove(boardCopy, move, playerColor);
-            if (score > bestScore)
-            {
-                bestScore = score;
-                best = move;
-            }
-        }
-        return best;
-    }
-
     public static Vector2Int ChooseMoveMinMax(OthelloBoard board, int playerColor, int depth = 3)
     {
         var moves = board.GetValidMoves(playerColor);
@@ -119,13 +98,6 @@ public static class OthelloAI
                     score -= PositionWeights[r, c];
             }
         }
-        return score;
-    }
-
-    static int ScoreMove(int[,] board, Vector2Int move, int playerColor)
-    {
-        int score = PositionWeights[move.x, move.y];
-        score += CountFlipsOnCopy(board, move, playerColor);
         return score;
     }
 
