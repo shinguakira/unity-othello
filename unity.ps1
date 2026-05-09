@@ -72,6 +72,77 @@ switch ($Action) {
         }
     }
 
+    "playmode-themes" {
+        # Run PlayMode tests once per theme variant; copy screenshots into a
+        # per-theme folder under Tests/Design-Themes/screenshots/<Theme>/.
+        $Themes = @("Riso", "Wabi", "Neon", "Pieces")
+        $ScreenshotSrc = Join-Path $env:USERPROFILE "AppData\LocalLow\Indie\Othell\TestArtifacts"
+        $OutRoot       = Join-Path $Project "Tests\Design-Themes\screenshots"
+
+        New-Item -ItemType Directory -Force -Path $OutRoot | Out-Null
+
+        foreach ($Theme in $Themes) {
+            Write-Host ""
+            Write-Host "============================================="
+            Write-Host "  Theme: $Theme"
+            Write-Host "============================================="
+
+            # Make sure no Unity is holding the project before launching.
+            Get-Process Unity -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 3
+
+            # Wipe stale screenshots and prior XML so we know the artifacts
+            # in TestArtifacts/ came from THIS run.
+            if (Test-Path $ScreenshotSrc) {
+                Get-ChildItem -Path $ScreenshotSrc -Filter *.png -ErrorAction SilentlyContinue |
+                    Remove-Item -Force -ErrorAction SilentlyContinue
+            }
+
+            $PlayLog     = "E:\tmp\unity-test-playmode-$Theme.log"
+            $PlayResults = "E:\tmp\unity-test-playmode-$Theme.xml"
+            if (Test-Path $PlayResults) { Remove-Item $PlayResults -Force }
+
+            # Use Start-Process -Wait so PowerShell really blocks until Unity
+            # has fully exited and flushed the result XML.
+            $proc = Start-Process -FilePath $Unity -PassThru -Wait -ArgumentList @(
+                "-batchmode", "-runTests",
+                "-testPlatform", "PlayMode",
+                "-projectPath", $Project,
+                "-testResults", $PlayResults,
+                "-logFile", $PlayLog,
+                "-theme=$Theme"
+            )
+
+            # Extra safety: small delay so any deferred file flush completes.
+            Start-Sleep -Seconds 2
+
+            $OutDir = Join-Path $OutRoot $Theme
+            New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
+            Get-ChildItem -Path $OutDir -Filter *.png -ErrorAction SilentlyContinue |
+                Remove-Item -Force -ErrorAction SilentlyContinue
+
+            if (Test-Path $ScreenshotSrc) {
+                $shots = Get-ChildItem -Path $ScreenshotSrc -Filter *.png -ErrorAction SilentlyContinue
+                foreach ($f in $shots) {
+                    Copy-Item -Path $f.FullName -Destination $OutDir -Force
+                }
+                Write-Host "  Screenshots: $($shots.Count) -> $OutDir"
+            } else {
+                Write-Host "  WARN: no screenshot source dir"
+            }
+
+            if (Test-Path $PlayResults) {
+                [xml]$xml = Get-Content $PlayResults
+                Write-Host "  Tests: $($xml.'test-run'.passed)/$($xml.'test-run'.total) passed"
+            } else {
+                Write-Host "  ERROR: no XML for $Theme (exit $($proc.ExitCode); see $PlayLog)"
+            }
+        }
+
+        Write-Host ""
+        Write-Host "Done. Compare at: $OutRoot"
+    }
+
     default {
         Write-Host "Opening Unity Editor..."
         Start-Process -FilePath $Unity -ArgumentList "-projectPath `"$Project`""

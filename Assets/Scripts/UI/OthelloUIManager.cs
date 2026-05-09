@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class OthelloUIManager : MonoBehaviour
+public partial class OthelloUIManager : MonoBehaviour
 {
     public static OthelloUIManager Instance { get; private set; }
 
@@ -12,9 +12,12 @@ public class OthelloUIManager : MonoBehaviour
     GameObject _modeSelectPanel;
     GameObject _gamePanel;
     GameObject _gameOverPanel;
+    GameObject _themePickerPanel;
 
     // Top-bar navigation (shown only during gameplay)
     GameObject _homeBtnGO;
+    // Settings (gear) — shown only on title screen, opens theme picker
+    GameObject _settingsBtnGO;
 
     // Game UI
     Text _blackScoreText;
@@ -124,6 +127,33 @@ public class OthelloUIManager : MonoBehaviour
         _gamePanel.SetActive(false);
 
         BuildMissionPanel(_gamePanel);
+
+        // Settings button — universal, shown only on title screen
+        _settingsBtnGO = BuildSettingsButton(safePanel);
+
+        // Theme picker overlay (hidden by default, opened by gear button on
+        // any theme's title screen). Built last so it sits on top of all
+        // other panels in the canvas hierarchy.
+        _themePickerPanel = BuildThemePicker(safePanel);
+    }
+
+    GameObject BuildSettingsButton(GameObject parent)
+    {
+        var go = new GameObject("Btn_settings");
+        go.transform.SetParent(parent.transform, false);
+        var rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.78f, 0.953f);
+        rt.anchorMax = new Vector2(0.98f, 0.992f);
+        rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+        var img = go.AddComponent<Image>();
+        img.color = new Color(0.949f, 0.769f, 0.282f, 0.95f); // gold pill
+        var btn = go.AddComponent<Button>();
+        btn.transition = Selectable.Transition.None;
+        btn.navigation = new Navigation { mode = Navigation.Mode.None };
+        btn.onClick.AddListener(OpenThemePicker);
+        var label = MakeText(go, "✦  THEME", 30, new Color(0.043f, 0.043f, 0.043f, 1f), TextAnchor.MiddleCenter);
+        label.fontStyle = FontStyle.Bold;
+        return go;
     }
 
     // Top bar: [HOME btn | ● score | turn | ○ score]
@@ -240,6 +270,17 @@ public class OthelloUIManager : MonoBehaviour
 
     GameObject BuildModeSelectPanel(GameObject parent)
     {
+        return OthelloTheme.Active switch
+        {
+            ThemeKind.Wabi   => BuildModeSelectPanel_Wabi(parent),
+            ThemeKind.Neon   => BuildModeSelectPanel_Neon(parent),
+            ThemeKind.Pieces => BuildModeSelectPanel_Pieces(parent),
+            _                => BuildModeSelectPanel_Riso(parent),
+        };
+    }
+
+    GameObject BuildModeSelectPanel_Modern(GameObject parent)
+    {
         var panel = MakePanel(parent, "ModeSelectPanel");
         SetStretch(panel.GetComponent<RectTransform>());
         var bg = panel.AddComponent<Image>();
@@ -308,6 +349,17 @@ public class OthelloUIManager : MonoBehaviour
     // Uses a consistent visual hierarchy (84pt → 32pt header → 44pt content)
     // so the eye doesn't trip over font-size jumps.
     GameObject BuildGameOverPanel(GameObject parent)
+    {
+        return OthelloTheme.Active switch
+        {
+            ThemeKind.Wabi   => BuildGameOverPanel_Wabi(parent),
+            ThemeKind.Neon   => BuildGameOverPanel_Neon(parent),
+            ThemeKind.Pieces => BuildGameOverPanel_Pieces(parent),
+            _                => BuildGameOverPanel_Riso(parent),
+        };
+    }
+
+    GameObject BuildGameOverPanel_Modern(GameObject parent)
     {
         var panel = MakePanel(parent, "GameOverPanel");
         SetStretch(panel.GetComponent<RectTransform>());
@@ -469,6 +521,9 @@ public class OthelloUIManager : MonoBehaviour
                       : e.winner == 1 ? Loc.Get("black_wins")
                       :                 Loc.Get("white_wins");
         _winnerText.text = result;
+        if (_winnerShadowText != null)     _winnerShadowText.text = result;
+        if (_neonWinShadowPink != null)    _neonWinShadowPink.text = result;
+        if (_neonWinShadowCyan != null)    _neonWinShadowCyan.text = result;
 
         int blackMissionPts = e.blackMissionAchieved ? e.blackMission.Bonus : 0;
         int whiteMissionPts = e.whiteMissionAchieved ? e.whiteMission.Bonus : 0;
@@ -546,6 +601,7 @@ public class OthelloUIManager : MonoBehaviour
     void ShowModeSelect()
     {
         _modeSelectPanel.SetActive(true);
+        if (_settingsBtnGO != null) _settingsBtnGO.SetActive(true);
     }
 
     void ShowRecords()

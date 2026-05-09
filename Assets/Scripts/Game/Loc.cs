@@ -30,6 +30,7 @@ public static class Loc
         { "stat_white",    new[] { "White Wins: ",       "白の勝利：" } },
         { "stat_high",     new[] { "High Score: ",       "ハイスコア：" } },
         { "lang_btn",      new[] { "日本語",              "English" } },
+        { "lang_mode",     new[] { "日本語",              "English" } },  // alias for themed text buttons
         { "version",       new[] { "v1.0",               "v1.0" } },
 
         // Bonus tiles
