@@ -12,7 +12,6 @@ public class OthelloUIManager : MonoBehaviour
     GameObject _modeSelectPanel;
     GameObject _gamePanel;
     GameObject _gameOverPanel;
-    GameObject _passToastPanel;
 
     // Top-bar navigation (shown only during gameplay)
     GameObject _homeBtnGO;
@@ -34,9 +33,10 @@ public class OthelloUIManager : MonoBehaviour
     Text _blackMissionReveal; // "● Black Mission: ...\nACHIEVED! +8"
     Text _whiteMissionReveal; // "○ White Mission: ...\nNot achieved"
 
-    // Pass toast
-    Text _passToastText;
-    Coroutine _passToastCoroutine;
+    // Pass message uses the turn indicator slot, briefly flashed.
+    Coroutine _passFlashCoroutine;
+    static readonly Color TurnIndicatorNormal = new Color(0.75f, 0.75f, 0.75f);
+    static readonly Color TurnIndicatorPass   = new Color(1f, 0.78f, 0.30f);
 
     // Localization refresh
     readonly List<(Text t, System.Func<string> getter)> _localizedTexts =
@@ -118,7 +118,6 @@ public class OthelloUIManager : MonoBehaviour
         BuildTopBar(safePanel);
         _modeSelectPanel = BuildModeSelectPanel(safePanel);
         _gameOverPanel   = BuildGameOverPanel(safePanel);
-        _passToastPanel  = BuildPassToast(safePanel);
 
         _gamePanel = MakePanel(safePanel, "GamePanel");
         SetStretch(_gamePanel.GetComponent<RectTransform>());
@@ -305,90 +304,82 @@ public class OthelloUIManager : MonoBehaviour
         return panel;
     }
 
-    // Game over card — taller to accommodate score breakdown + mission reveals
+    // Game over panel — sectioned layout: Winner / Score / Mission / Buttons.
+    // Uses a consistent visual hierarchy (84pt → 32pt header → 44pt content)
+    // so the eye doesn't trip over font-size jumps.
     GameObject BuildGameOverPanel(GameObject parent)
     {
         var panel = MakePanel(parent, "GameOverPanel");
         SetStretch(panel.GetComponent<RectTransform>());
         var dimBg = panel.AddComponent<Image>();
-        dimBg.color = new Color(0f, 0f, 0f, 0.85f);
+        dimBg.color = new Color(0f, 0f, 0f, 0.88f);
         dimBg.raycastTarget = false;
 
         var cardGO = MakePanel(panel, "Card");
-        var cardRT = cardGO.GetComponent<RectTransform>();
-        cardRT.anchorMin = new Vector2(0.04f, 0.06f);
-        cardRT.anchorMax = new Vector2(0.96f, 0.94f);
-        cardRT.offsetMin = Vector2.zero;
-        cardRT.offsetMax = Vector2.zero;
+        SetAnchor(cardGO, 0.04f, 0.06f, 0.96f, 0.94f);
         var cardImg = cardGO.AddComponent<Image>();
         cardImg.color = new Color(0.06f, 0.18f, 0.08f, 1f);
         cardImg.raycastTarget = false;
 
-        // Winner (top 16%)
+        // Winner banner — top 14%
         var winnerGO = MakePanel(cardGO, "Winner");
-        winnerGO.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0.84f);
-        winnerGO.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 1.00f);
-        winnerGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-        winnerGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-        _winnerText = MakeText(winnerGO, "", 66, Color.white, TextAnchor.MiddleCenter, true);
+        SetAnchor(winnerGO, 0f, 0.86f, 1f, 1.00f);
+        _winnerText = MakeText(winnerGO, "", 84, Color.white, TextAnchor.MiddleCenter, true);
         _winnerText.fontStyle = FontStyle.Bold;
 
-        // Score breakdown — black (68–84%)
+        // "Score" section header (small green, like a divider label)
+        var scoreHdr = MakePanel(cardGO, "ScoreHeader");
+        SetAnchor(scoreHdr, 0.05f, 0.78f, 0.95f, 0.84f);
+        var scoreHdrText = MakeText(scoreHdr, "Score  —  stones + tiles + mission",
+            28, new Color(0.55f, 0.85f, 0.55f), TextAnchor.MiddleCenter);
+        scoreHdrText.fontStyle = FontStyle.Italic;
+
+        // Black score breakdown
         var blackScoreGO = MakePanel(cardGO, "BlackScore");
-        blackScoreGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.68f);
-        blackScoreGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.84f);
-        blackScoreGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-        blackScoreGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-        _gameOverBlackText = MakeText(blackScoreGO, "", 38, Color.white, TextAnchor.MiddleCenter, true);
+        SetAnchor(blackScoreGO, 0.04f, 0.68f, 0.96f, 0.78f);
+        _gameOverBlackText = MakeText(blackScoreGO, "", 44,
+            Color.white, TextAnchor.MiddleCenter, true);
 
-        // Score breakdown — white (52–68%)
+        // White score breakdown
         var whiteScoreGO = MakePanel(cardGO, "WhiteScore");
-        whiteScoreGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.52f);
-        whiteScoreGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.68f);
-        whiteScoreGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-        whiteScoreGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-        _gameOverWhiteText = MakeText(whiteScoreGO, "", 38, new Color(0.85f, 0.85f, 0.85f), TextAnchor.MiddleCenter, true);
+        SetAnchor(whiteScoreGO, 0.04f, 0.58f, 0.96f, 0.68f);
+        _gameOverWhiteText = MakeText(whiteScoreGO, "", 44,
+            new Color(0.85f, 0.85f, 0.85f), TextAnchor.MiddleCenter, true);
 
-        // Mission reveal divider label (45–52%)
-        var divGO = MakePanel(cardGO, "MissionDivider");
-        divGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.45f);
-        divGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.52f);
-        divGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-        divGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
-        var divText = MakeText(divGO, Loc.Get("missions_revealed"), 28,
-            new Color(0.6f, 0.9f, 0.6f), TextAnchor.MiddleCenter);
-        _localizedTexts.Add((divText, () => Loc.Get("missions_revealed")));
+        // "Missions Revealed" section header
+        var missHdr = MakePanel(cardGO, "MissionsHeader");
+        SetAnchor(missHdr, 0.05f, 0.50f, 0.95f, 0.56f);
+        var missHdrText = MakeText(missHdr, Loc.Get("missions_revealed"), 28,
+            new Color(0.55f, 0.85f, 0.55f), TextAnchor.MiddleCenter);
+        missHdrText.fontStyle = FontStyle.Italic;
+        _localizedTexts.Add((missHdrText, () => Loc.Get("missions_revealed")));
 
-        // Black mission reveal (28–45%)
+        // Black mission reveal card
         var blackMissGO = MakePanel(cardGO, "BlackMission");
-        blackMissGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.28f);
-        blackMissGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.45f);
-        blackMissGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-        blackMissGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        SetAnchor(blackMissGO, 0.04f, 0.34f, 0.96f, 0.48f);
         var blackMissBg = blackMissGO.AddComponent<Image>();
-        blackMissBg.color = new Color(0f, 0f, 0f, 0.25f);
+        blackMissBg.color = new Color(0f, 0f, 0f, 0.30f);
         blackMissBg.raycastTarget = false;
-        _blackMissionReveal = MakeText(blackMissGO, "", 30, Color.white, TextAnchor.MiddleCenter, true);
+        _blackMissionReveal = MakeText(blackMissGO, "", 36,
+            Color.white, TextAnchor.MiddleCenter, true);
 
-        // White mission reveal (11–28%)
+        // White mission reveal card
         var whiteMissGO = MakePanel(cardGO, "WhiteMission");
-        whiteMissGO.GetComponent<RectTransform>().anchorMin = new Vector2(0.02f, 0.11f);
-        whiteMissGO.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 0.28f);
-        whiteMissGO.GetComponent<RectTransform>().offsetMin = Vector2.zero;
-        whiteMissGO.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        SetAnchor(whiteMissGO, 0.04f, 0.18f, 0.96f, 0.32f);
         var whiteMissBg = whiteMissGO.AddComponent<Image>();
-        whiteMissBg.color = new Color(0f, 0f, 0f, 0.25f);
+        whiteMissBg.color = new Color(0f, 0f, 0f, 0.30f);
         whiteMissBg.raycastTarget = false;
-        _whiteMissionReveal = MakeText(whiteMissGO, "", 30, new Color(0.85f, 0.85f, 0.85f), TextAnchor.MiddleCenter, true);
+        _whiteMissionReveal = MakeText(whiteMissGO, "", 36,
+            new Color(0.85f, 0.85f, 0.85f), TextAnchor.MiddleCenter, true);
 
-        // Buttons (0–11%)
+        // Buttons — bottom 14%
         var replayBtn = MakeButton(cardGO, "play_again",
-            new Vector2(0.05f, 0.01f), new Vector2(0.48f, 0.10f),
+            new Vector2(0.05f, 0.02f), new Vector2(0.48f, 0.14f),
             new Color(0.16f, 0.60f, 0.26f), OnReplayClicked);
         _localizedTexts.Add((replayBtn.GetComponentInChildren<Text>(), () => Loc.Get("play_again")));
 
         var menuBtn = MakeButton(cardGO, "menu",
-            new Vector2(0.52f, 0.01f), new Vector2(0.95f, 0.10f),
+            new Vector2(0.52f, 0.02f), new Vector2(0.95f, 0.14f),
             new Color(0.28f, 0.28f, 0.30f), OnMainMenuClicked);
         _localizedTexts.Add((menuBtn.GetComponentInChildren<Text>(), () => Loc.Get("menu")));
 
@@ -396,22 +387,13 @@ public class OthelloUIManager : MonoBehaviour
         return panel;
     }
 
-    GameObject BuildPassToast(GameObject parent)
+    static void SetAnchor(GameObject go, float xMin, float yMin, float xMax, float yMax)
     {
-        var panel = MakePanel(parent, "PassToast");
-        var rt = panel.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.1f, 0.42f);
-        rt.anchorMax = new Vector2(0.9f, 0.52f);
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(xMin, yMin);
+        rt.anchorMax = new Vector2(xMax, yMax);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
-
-        var toastBg = panel.AddComponent<Image>();
-        toastBg.color = new Color(0f, 0f, 0f, 0.75f);
-        toastBg.raycastTarget = false;
-        _passToastText = MakeText(panel, "", 44, Color.white, TextAnchor.MiddleCenter);
-
-        panel.SetActive(false);
-        return panel;
     }
 
     // ── Event Handlers ───────────────────────────────────────────────────────
@@ -437,15 +419,39 @@ public class OthelloUIManager : MonoBehaviour
         }
     }
 
+    // Pass is shown by recoloring + relabeling the turn indicator briefly
+    // (no separate toast popup that could overlap the game-over panel).
     void OnPassTurn(PassTurnEvent e)
     {
-        string key = e.playerColor == 1 ? "black_passes" : "white_passes";
-        if (_passToastCoroutine != null) StopCoroutine(_passToastCoroutine);
-        _passToastCoroutine = StartCoroutine(ShowPassToast(Loc.Get(key)));
+        if (_passFlashCoroutine != null) StopCoroutine(_passFlashCoroutine);
+        _passFlashCoroutine = StartCoroutine(FlashPassMessage(e.playerColor));
+    }
+
+    IEnumerator FlashPassMessage(int passingPlayer)
+    {
+        string key = passingPlayer == 1 ? "black_passes" : "white_passes";
+        _turnIndicatorText.text = Loc.Get(key);
+        _turnIndicatorText.color = TurnIndicatorPass;
+        yield return new WaitForSeconds(1.0f);
+        // Restore from whichever turn is current now (might have advanced).
+        _turnIndicatorText.color = TurnIndicatorNormal;
+        _turnIndicatorText.text = _lastTurnPlayer == 1
+            ? Loc.Get("black_turn") : Loc.Get("white_turn");
     }
 
     void OnGameOver(GameOverEvent e)
     {
+        // Cancel any in-flight pass flash so it doesn't overwrite the
+        // restored turn indicator behind the dimmed game-over panel.
+        if (_passFlashCoroutine != null)
+        {
+            StopCoroutine(_passFlashCoroutine);
+            _passFlashCoroutine = null;
+        }
+        _turnIndicatorText.color = TurnIndicatorNormal;
+        _turnIndicatorText.text  = _lastTurnPlayer == 1
+            ? Loc.Get("black_turn") : Loc.Get("white_turn");
+
         _lastWinner  = e.winner;
         _hasGameOver = true;
         _lastGameOver = e;
@@ -482,13 +488,6 @@ public class OthelloUIManager : MonoBehaviour
             $"○  {Loc.Get(e.whiteMission.GetLocKey())}\n{whiteAchievedStr}";
     }
 
-    IEnumerator ShowPassToast(string message)
-    {
-        _passToastText.text = message;
-        _passToastPanel.SetActive(true);
-        yield return new WaitForSeconds(1.2f);
-        _passToastPanel.SetActive(false);
-    }
 
     void OnReplayClicked()
     {
