@@ -558,6 +558,55 @@ public class OthelloE2EPlayModeTests
     }
 
     [UnityTest]
+    public IEnumerator GameOverReveal_MidAnimation_ShowsPartialRefill()
+    {
+        // Re-enable the per-stone reveal timing for this test so the
+        // screenshot taken in TearDown captures the mid-refill state
+        // (some stones placed, score ticked partway up).
+        OthelloUIManager.RevealClearPause      = 0.30f;
+        OthelloUIManager.RevealStonePlaceDelay = 0.04f;
+        OthelloUIManager.RevealPhaseGap        = 0.40f;
+
+        yield return StartVsHuman();
+        _gotGameOver = false;
+
+        // Set up a checker board so 32 of each color exist — the reveal
+        // will tick from 0→32 for black, then 0→32 for white.
+        var s = EmptyBoard();
+        for (int r = 0; r < 8; r++)
+            for (int c = 0; c < 8; c++)
+                s[r, c] = (r + c) % 2 == 0 ? 1 : 2;
+        SetBoardState(s);
+
+        var beginTurn = typeof(OthelloGameManager).GetMethod("BeginTurn",
+            BindingFlags.NonPublic | BindingFlags.Instance);
+        beginTurn.Invoke(OthelloGameManager.Instance, null);
+
+        // Let the clear phase complete and ~14 black stones get placed.
+        // Total black-phase length: 0.30 (clear) + 32 × 0.04 = 1.58s.
+        // Sample at 0.95s — board should have ~16 black stones, no whites.
+        yield return new WaitForSeconds(0.95f);
+
+        Assert.That(_gotGameOver, Is.True, "GameOver event must fire.");
+        // The score counter should be in the middle of the count-up,
+        // proving the reveal animation is actually running.
+        var blackText = FindByName("BlackScore").GetComponentInChildren<Text>();
+        int blackTick;
+        Assert.That(int.TryParse(blackText.text, out blackTick), Is.True);
+        Assert.That(blackTick, Is.GreaterThan(0).And.LessThanOrEqualTo(32),
+            "Black score should be in the middle of the count-up during the reveal.");
+
+        // Turn indicator should read "FINAL RESULT" during the reveal.
+        var turnText = FindByName("TurnIndicator").GetComponentInChildren<Text>();
+        Assert.That(turnText.text, Is.EqualTo("FINAL  RESULT"));
+
+        // Game-over panel must NOT yet be visible.
+        var gameOverPanel = FindByName("GameOverPanel");
+        Assert.That(gameOverPanel.activeInHierarchy, Is.False,
+            "Game-over breakdown panel should not appear until the reveal finishes.");
+    }
+
+    [UnityTest]
     public IEnumerator VsAi_AiTurn_DoesNotShowQuestionMarks()
     {
         yield return StartVsAi();
