@@ -64,7 +64,40 @@ Editor を開いた状態では実行不可。先に Unity を閉じること:
 Stop-Process -Name Unity -ErrorAction SilentlyContinue; .\unity.ps1 compile
 ```
 
-テストは Unity Editor の **Window → General → Test Runner → EditMode** から実行。
+PlayMode E2E テスト (UI + ロジック横断) は CLI から実行可能:
+
+```powershell
+.\unity.ps1 playmode             # default テーマで実行
+.\unity.ps1 playmode-themes      # 4 テーマ全部、Tests/Design-Themes/screenshots/<Theme>/ に PNG 出力
+```
+
+EditMode テストは Unity Editor の **Window → General → Test Runner → EditMode** から実行。
+
+## UI 変更後はスクショで確認・提示する
+
+UI を変更したら **必ず実スクリーンショットを取って該当部分をユーザに見せる**。
+コード差分だけで「直しました」と報告するのは NG — レイアウト不正・色崩れ・
+円が楕円になる・テキスト切れ等は、目で見ないと気付けない。
+
+手順:
+
+1. `.\unity.ps1 playmode` を走らせる (テスト中に PNG が自動生成される)
+2. `%USERPROFILE%\AppData\LocalLow\Indie\Othell\TestArtifacts\<TestName>.png`
+   から該当箇所のスクショを Read
+3. 確認した画像をユーザに表示してから完了報告
+
+スクショ取得テストの種類:
+
+| テスト | 撮れる画面 |
+|---|---|
+| TitleScreen_ShowsLanguageButton | タイトル / モード選択 |
+| HumanPlay_PlacesPieceAndFlipsAndUpdatesScore | 1手後の in-game (TopBar / mission strip / board) |
+| Pass_HandlePassPublishesEventAndSwitchesTurn | パス時の TurnIndicator 切替 |
+| GameOver_FiresWhenNeitherPlayerHasMoves | GameOver パネル全体 |
+| MissionAchieved_ShowsSnackbarOverlay | ミッション達成スナックバー |
+
+UI 大改修や複数テーマ確認は `playmode-themes` で 4 テーマ × 10 PNG 一括生成。
+[Tests/Design-Themes/COMPARE.md](Tests/Design-Themes/COMPARE.md) に並べて貼り出す。
 
 ## Coding Conventions
 
