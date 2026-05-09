@@ -137,21 +137,34 @@ public partial class OthelloUIManager : MonoBehaviour
         _themePickerPanel = BuildThemePicker(safePanel);
     }
 
+    // Small unobtrusive settings button on the title screen — opens the
+    // settings page (where theme + future toggles live). Same prominence
+    // tier as the lang button, NOT a hero CTA.
     GameObject BuildSettingsButton(GameObject parent)
     {
         var go = new GameObject("Btn_settings");
         go.transform.SetParent(parent.transform, false);
         var rt = go.AddComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.78f, 0.953f);
-        rt.anchorMax = new Vector2(0.98f, 0.992f);
+        rt.anchorMin = new Vector2(0.92f, 0.955f);
+        rt.anchorMax = new Vector2(0.98f, 0.99f);
         rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+
+        // Square chip with thin border, neutral tone so it stays understated
         var img = go.AddComponent<Image>();
-        img.color = new Color(0.949f, 0.769f, 0.282f, 0.95f); // gold pill
+        img.color = new Color(0.118f, 0.118f, 0.137f, 0.85f);
         var btn = go.AddComponent<Button>();
         btn.transition = Selectable.Transition.None;
         btn.navigation = new Navigation { mode = Navigation.Mode.None };
         btn.onClick.AddListener(OpenThemePicker);
-        var label = MakeText(go, "✦  THEME", 30, new Color(0.043f, 0.043f, 0.043f, 1f), TextAnchor.MiddleCenter);
+
+        // Inner gold border (1px frame)
+        MakeRect(go, "FT", new Color(0.949f, 0.769f, 0.282f, 0.85f), 0f, 0.92f, 1f, 1f);
+        MakeRect(go, "FB", new Color(0.949f, 0.769f, 0.282f, 0.85f), 0f, 0f, 1f, 0.08f);
+        MakeRect(go, "FL", new Color(0.949f, 0.769f, 0.282f, 0.85f), 0f, 0f, 0.04f, 1f);
+        MakeRect(go, "FR", new Color(0.949f, 0.769f, 0.282f, 0.85f), 0.96f, 0f, 1f, 1f);
+
+        var label = MakeText(go, "···",
+            44, new Color(0.949f, 0.769f, 0.282f, 1f), TextAnchor.MiddleCenter);
         label.fontStyle = FontStyle.Bold;
         return go;
     }

@@ -97,10 +97,10 @@ public partial class OthelloUIManager
         MakeRect(card, "BorderB", new Color(0.949f, 0.769f, 0.282f),
             0f, 0f, 1f, 0.015f);
 
-        MakeLabelAt(card, "Title", "DESIGN  THEME",
-            48, new Color(1f, 1f, 1f, 1f), TextAnchor.MiddleCenter,
-            0.05f, 0.86f, 0.95f, 0.95f, FontStyle.Bold);
-        MakeLabelAt(card, "Sub", "·  pick a visual language  ·",
+        MakeLabelAt(card, "Title", "SETTINGS",
+            56, new Color(1f, 1f, 1f, 1f), TextAnchor.MiddleCenter,
+            0.05f, 0.87f, 0.95f, 0.96f, FontStyle.Bold);
+        MakeLabelAt(card, "Sub", "—  design theme  —",
             22, new Color(0.949f, 0.769f, 0.282f), TextAnchor.MiddleCenter,
             0.05f, 0.81f, 0.95f, 0.86f, FontStyle.Italic);
 
@@ -947,21 +947,22 @@ public partial class OthelloUIManager
         MakeRect(panel, "CardBorder", PGold,    0.05f, 0.06f, 0.95f, 0.94f);
         var card = MakeRect(panel, "Card", PCream, 0.058f, 0.067f, 0.942f, 0.933f);
 
-        // Title piece: huge black piece glyph
+        // Title piece: huge black piece glyph (left), white piece (right),
+        // pulled into corners so the title fits cleanly between them.
         MakeSpriteRect(card, "PieceBlack", ThemeSprites.Circle, PInk,
-            0.10f, 0.74f, 0.30f, 0.92f);
+            0.04f, 0.78f, 0.20f, 0.92f);
         MakeSpriteRect(card, "PieceBlackHl", ThemeSprites.Circle,
             new Color(1f, 1f, 1f, 0.18f),
-            0.13f, 0.81f, 0.20f, 0.88f);
+            0.07f, 0.84f, 0.13f, 0.90f);
         MakeSpriteRect(card, "PieceWhite", ThemeSprites.Circle, PWhitePc,
-            0.70f, 0.74f, 0.90f, 0.92f);
+            0.80f, 0.78f, 0.96f, 0.92f);
         MakeSpriteRect(card, "PieceRing",  ThemeSprites.RingThin,
             new Color(PInk.r, PInk.g, PInk.b, 0.5f),
-            0.70f, 0.74f, 0.90f, 0.92f);
+            0.80f, 0.78f, 0.96f, 0.92f);
 
-        // Title between the two pieces
+        // Title between the two pieces — proper margin so glyphs don't clip
         MakeLabelAt(card, "Title", Loc.Get("title").ToUpperInvariant(),
-            120, PInk, TextAnchor.MiddleCenter, 0.27f, 0.74f, 0.73f, 0.92f, FontStyle.Bold, autoSize: true);
+            120, PInk, TextAnchor.MiddleCenter, 0.22f, 0.76f, 0.78f, 0.94f, FontStyle.Bold, autoSize: true);
         _localizedTexts.Add((
             FindByNameInChild(card, "Title").GetComponentInChildren<Text>(),
             () => Loc.Get("title").ToUpperInvariant()));
